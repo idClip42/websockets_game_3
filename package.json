@@ -1,0 +1,33 @@
+{
+  "name": "websockets_game_3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "nodemon": "nodemon --watch ./src ./src/server.js",
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\"",
+    "doThing": "eslint --init"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idClip42/websockets_game_3.git"
+  },
+  "author": "Alexander Earley and Benjamin Connick",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/idClip42/websockets_game_3/issues"
+  },
+  "homepage": "https://github.com/idClip42/websockets_game_3#readme",
+  "devDependencies": {
+    "eslint": "^3.16.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "socket.io": "^1.7.3"
+  }
+}
