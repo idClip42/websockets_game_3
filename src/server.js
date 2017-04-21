@@ -6,43 +6,32 @@
 
 */
 
+const express = require('express');
 
-const http = require('http');
-const fs = require('fs');
+const app = express();
+app.use(express.static('client'));
+app
+const http = require('http').Server(app);
 const socketio = require('socket.io');
 const url = require('url');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-// File imports
-let index = fs.readFileSync(`${__dirname}/../client/index.html`);
+// start server listen to all IPs on port
+http.listen(port, "0.0.0.0", 511, function(){
+  console.log(`listening on *: ${port}`);
+  //console.log(`Listening on 127.0.0.1: ${port}`);
+});
 
 
-// Returns page and images on request
-const onRequest = (request, response) => {
-  const parsedUrl = url.parse(request.url);
+// FILE SERVING HANDLED BY EXPRESS
 
-  console.log(`Requested: ${request.url}`);
+// const app = http.createServer(onRequest).listen(port);
+app.get('/', function(req, res){
+  console.log("request recieved");
+  res.sendFile(__dirname + '/client/index.html');
+});
 
-  let data;
-  let type;
-
-  switch (parsedUrl.pathname) {
-    default:
-      // Imports index each time so I don't have to restart server for html changes
-      index = fs.readFileSync(`${__dirname}/../client/index.html`);
-      data = index;
-      type = 'text/html';
-  }
-
-  response.writeHead(200, { 'Content-Type': type });
-  response.write(data);
-  response.end();
-};
-
-const app = http.createServer(onRequest).listen(port);
-
-console.log(`Listening on 127.0.0.1: ${port}`);
 
 
 /*
@@ -57,23 +46,23 @@ const GAMESTATE = Object.freeze({
   LOBBY: 0,
   GATHERING: 1,
   VOTING: 2,
-  INFO: 3
+  INFO: 3,
 });
 
 const GAME = Object.freeze({
   MAX_POWER: 10,
-  MAX_HEALTH: 5
+  MAX_HEALTH: 5,
 });
 
 const TASKS = Object.freeze({
   FOOD: 0,
   CHEM: 1,
   POWER: 2,
-  NOTHING: 3
+  NOTHING: 3,
 });
 
 const GameStateCreator = () => {
-  let game = {};
+  const game = {};
 
   game.players = [];
   game.room = undefined;
@@ -87,7 +76,7 @@ const GameStateCreator = () => {
 };
 
 const PlayerCreator = (name) => {
-  let player = {};
+  const player = {};
 
   player.name = name;
   player.health = Math.round(Math.random() * GAME.MAX_HEALTH);
@@ -121,7 +110,7 @@ const frameTime = 1000 / 60;
 */
 
 
-const io = socketio(app);
+const io = socketio(http);
 
 io.sockets.on('connection', (socket) => {
   console.log('connected');
