@@ -10,7 +10,6 @@ const express = require('express');
 
 const app = express();
 app.use(express.static('client'));
-app
 const http = require('http').Server(app);
 const socketio = require('socket.io');
 const url = require('url');
@@ -22,7 +21,6 @@ http.listen(port, "0.0.0.0", 511, function(){
   console.log(`listening on *: ${port}`);
   //console.log(`Listening on 127.0.0.1: ${port}`);
 });
-
 
 // FILE SERVING HANDLED BY EXPRESS
 
