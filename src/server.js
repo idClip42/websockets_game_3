@@ -92,6 +92,7 @@ const PlayerCreator = (name) => {
   player.name = name;
   player.health = Math.round(Math.random() * GAME.MAX_HEALTH);
   player.task = TASKS.NOTHING;
+  player.thing = false;
 
   // Seal it!
   return Object.seal(player);
