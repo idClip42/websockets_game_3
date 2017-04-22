@@ -131,6 +131,9 @@ io.sockets.on('connection', (socket) => {
 
   socket.on('update', (data) => {
     // Update individual values in the Game object here
+    // (data should hold only the properties that need to be changed)
+    // (actually, data should probably hold the player object only,
+    //  since that's the only thing the player will be updating)
 
     emitUpdate(socket.room);  // socket.room may not be valid
   });
@@ -140,6 +143,7 @@ io.sockets.on('connection', (socket) => {
     let game = roomGames[data.room];
     if(game.state != GAMESTATE.LOBBY) return;
 
+    // TODO: Check if their socket id matches one already in the player list first
     socket.join(data.room);
     let player = PlayerCreator(data.name, socket.id);
     game.players.push(player);

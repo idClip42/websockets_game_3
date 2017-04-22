@@ -41,7 +41,27 @@
             },
         };
 
-        let game;
+        let game = {
+            // Filled with demo info
+            GAMESTATE: Object.freeze({
+              LOBBY: 0,
+              GATHERING: 1,
+              VOTING: 2,
+              INFO: 3,
+            }),
+            state: 0,
+            players: [
+                {
+                    name: "Alex",
+                },
+                {
+                    name: "Ben",
+                },
+                {
+                    name: "Frankenstein",
+                },
+            ],
+        };
 
         const playerDraws = [
             // Filled with demo info
@@ -139,7 +159,16 @@
         };
 
         const displayLobby = () => {
-
+            let names = game.players;
+            ctx.strokeStyle = "white";
+            ctx.textAlign = "center";
+            ctx.textBaseline="top"; 
+            ctx.font = "30px Arial";
+            let x = canvas.width/2;
+            let y = 150;
+            for(let n = 0; n < names.length; ++n){
+                ctx.fillText(names[n].name, x, y + (n * 35));
+            }
         };
 
         const displayMap = () => {
