@@ -17,23 +17,22 @@ const url = require('url');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 // start server listen to all IPs on port
-http.listen(port, "0.0.0.0", 511, function(){
+http.listen(port, '0.0.0.0', 511, () => {
   console.log(`listening on *: ${port}`);
-  //console.log(`Listening on 127.0.0.1: ${port}`);
+  // console.log(`Listening on 127.0.0.1: ${port}`);
 });
 
 // FILE SERVING HANDLED BY EXPRESS
 
 // const app = http.createServer(onRequest).listen(port);
-app.get('/', function(req, res){
-  console.log("request recieved");
-  res.sendFile(__dirname + '/client/index.html');
+app.get('/', (req, res) => {
+  console.log('request recieved');
+  res.sendFile(`${__dirname}/client/index.html`);
 });
-app.get('/game', function(req, res){
-  console.log("request recieved");
-  res.sendFile(__dirname + '/../client/game.html');
+app.get('/game', (req, res) => {
+  console.log('request recieved');
+  res.sendFile(`${__dirname}/../client/game.html`);
 });
-
 
 
 /*
@@ -43,6 +42,10 @@ app.get('/game', function(req, res){
 
 
 */
+
+const io = socketio(http);
+
+const roomGames = {};
 
 const GAMESTATE = Object.freeze({
   LOBBY: 0,
@@ -60,30 +63,35 @@ const TASKS = Object.freeze({
   FOOD: 0,
   CHEM: 1,
   POWER: 2,
-  NOTHING: 3,
+  MAIN: 3,
+  NOTHING: 4,
 });
 
-const GameStateCreator = () => {
+const GameCreator = (room) => {
   const game = {};
 
   game.players = [];
-  game.room = undefined;
+  game.room = room;
   game.state = GAMESTATE.LOBBY;
   game.food = 0;
   game.chem = 0;
   game.generator = GAME.MAX_POWER;
 
+  game.GAMESTATE = GAMESTATE;
+  game.TASKS = TASKS;
+
   // Seal it!
   return Object.seal(game);
 };
 
-const PlayerCreator = (name) => {
+const PlayerCreator = (name, id) => {
   const player = {};
 
   player.name = name;
   player.health = Math.round(Math.random() * GAME.MAX_HEALTH);
   player.task = TASKS.NOTHING;
   player.thing = false;
+  player.socketID = id;
 
   // Seal it!
   return Object.seal(player);
@@ -103,6 +111,12 @@ const frameTime = 1000 / 60;
 */
 
 
+const emitUpdate = (room) => {
+  const obj = roomGames[room];
+  io.to(room).emit('update', obj);
+};
+
+
 /*
 
 
@@ -112,17 +126,30 @@ const frameTime = 1000 / 60;
 */
 
 
-const io = socketio(http);
-
 io.sockets.on('connection', (socket) => {
   console.log('connected');
 
   socket.on('update', (data) => {
-    console.log(data);
+    // Update individual values in the Game object here
+
+    emitUpdate(socket.room);  // socket.room may not be valid
   });
 
-  socket.on('joinGame', () => {
-    socket.join('room1');
+  socket.on('joinGame', (data) => {
+
+    let game = roomGames[data.room];
+    if(game.state != GAMESTATE.LOBBY) return;
+
+    socket.join(data.room);
+    let player = PlayerCreator(data.name, socket.id);
+    game.players.push(player);
+    emitUpdate(data.room);
+  });
+
+  socket.on('makeGame', (name) => {
+    if (!roomGames[name]) { roomGames[name] = GameCreator(name); }
+    socket.join(name);
+    emitUpdate(name);
   });
 
   socket.on('disconnect', () => {
