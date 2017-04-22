@@ -74,7 +74,7 @@ const GameCreator = (room) => {
   game.room = room;
   game.state = GAMESTATE.LOBBY;
   game.food = 0;
-  game.chem = 0;
+  game.chems = 0;
   game.generator = GAME.MAX_POWER;
 
   game.GAMESTATE = GAMESTATE;
@@ -154,6 +154,12 @@ io.sockets.on('connection', (socket) => {
     if (!roomGames[name]) { roomGames[name] = GameCreator(name); }
     socket.join(name);
     emitUpdate(name);
+  });
+
+  socket.on('startGame', () => {
+    let game = roomGames[socket.room];  // socket.room may not be valid
+    game.state = GAMESTATE.GATHERING;
+    emitUpdate(socket.room);  // socket.room may not be valid
   });
 
   socket.on('disconnect', () => {

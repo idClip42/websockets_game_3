@@ -49,7 +49,7 @@
               VOTING: 2,
               INFO: 3,
             }),
-            state: 0,
+            state: 1,
             players: [
                 {
                     name: "Alex",
@@ -61,6 +61,9 @@
                     name: "Frankenstein",
                 },
             ],
+            food: 3,
+            chems: 5,
+            power: 9,
         };
 
         const playerDraws = [
@@ -174,6 +177,7 @@
         const displayMap = () => {
             drawRooms();
             updatePlayers();
+            drawStats();
         };
 
     	const update = () => {
@@ -281,6 +285,32 @@
                 ctx.font = "16px Arial";
                 ctx.fillText(player.name, x + 5, y + 5);
             }
+        };
+
+        const drawStats = () => {
+            ctx.strokeStyle = "white";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "left";
+            ctx.textBaseline="middle"; 
+            ctx.font = "24px Arial";
+
+            const x = 0.6 * canvas.width;
+            const y = 0.7 * canvas.height;
+            const height = 50;
+            const length = 100;
+            const blockWidth = 10;
+            const blockOffset = 15;
+
+            ctx.fillText("Food:", x, y);
+            for(let n = 0; n < game.food; ++n)
+                ctx.fillRect(x + length + blockOffset*n, y, blockWidth, blockWidth);
+            ctx.fillText("Chems:", x, y + height);
+            for(let n = 0; n < game.chems; ++n)
+                ctx.fillRect(x + length + blockOffset*n, y + height, blockWidth, blockWidth);
+            ctx.fillText("Power:", x, y + height * 2);
+            for(let n = 0; n < game.power; ++n)
+                ctx.fillRect(x + length + blockOffset*n, y + height*2, blockWidth, blockWidth);
+
         };
 
         const drawCircle = (x,y,r,color) => {
