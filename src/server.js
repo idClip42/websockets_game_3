@@ -29,6 +29,10 @@ app.get('/', function(req, res){
   console.log("request recieved");
   res.sendFile(__dirname + '/client/index.html');
 });
+app.get('/game', function(req, res){
+  console.log("request recieved");
+  res.sendFile(__dirname + '/../client/game.html');
+});
 
 
 

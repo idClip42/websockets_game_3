@@ -6,14 +6,29 @@
     <script type="text/babel" >
         "use strict";
 
-    	const init = () => {
-    		const socket = io.connect();
+        let ctx;
+        let canvas;
+
+        const initSockets = () => {
+            const socket = io.connect();
 
             socket.on("update", (data) => {
                 
             });
 
             socket.emit("joinGame");
+        };
+
+        const initCanvas = () => {
+            canvas = document.querySelector("canvas");
+            ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+    	const init = () => {
+    		initSockets();
+            initCanvas();
 
     		update();
     	};
@@ -31,13 +46,18 @@
     </script>
 
     <style>
-        
+        html, body {
+          width:  100%;
+          height: 100%;
+          margin: 0px;
+        }
     </style>
 
     <title>Home Page</title>
 </head>
 <body>
-  <!-- example image served automatically by express! -->
-  <img src="image.jpg"/>
+  
+    <canvas>Get a real browser!</canvas>
+
 </body>
 </html>
