@@ -93,6 +93,12 @@
         ];
 
         const updateGameObject = (data) => {
+
+            // An update means we are in a game,
+            // which means we don't need to enter a game name
+            e.target.hidden = true;
+
+
             for(let n = 0; n < data.players.length; ++n){
                 if(!game) break;
                 if(game.players[n] && game.players[n].task != data.players[n].task){
@@ -346,14 +352,10 @@
             let name = e.target.firstChild.value;
             if(name == "") return false;
 
-            // Do stuff
-
-            if(socket){
+            if(socket)
                 socket.emit("makeGame", name);
-                e.target.hidden = true;
-            } else {
+            else 
                 console.log("no socket connected");
-            }
 
             return false;
         };
