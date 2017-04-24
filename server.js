@@ -40,7 +40,7 @@ http.listen(port, '0.0.0.0', 511, () => {
 // const app = http.createServer(onRequest).listen(port);
 app.get('/', (req, res) => {
   console.log('request recieved');
-  res.sendFile(`${__dirname}/client/index.html`);
+  res.sendFile(`${__dirname}/client/controller.html`);
 });
 
 app.get('/game', (req, res) => {
