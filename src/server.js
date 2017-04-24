@@ -26,6 +26,7 @@ app.use(express.static('client'));
 const http = require('http').Server(app);
 const socketio = require('socket.io');
 const url = require('url');
+var path = require('path');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -41,20 +42,20 @@ http.listen(port, '0.0.0.0', 511, () => {
 app.get('/', (req, res) => {
   // does not run, just returns index
   console.log('root request recieved');
-  res.sendFile(`${__dirname}/../client/controller.html`);
+  res.sendFile(path.resolve('client/controller.html'));
 });
 
 
 // SEND CONTROLLER
 app.get('/controller', (req, res) => {
   console.log('request recieved');
-  res.sendFile(`${__dirname}/../client/controller.html`);
+  res.sendFile(path.resolve('client/controller.html'));
 });
 
 // SEND CANVAS GAME
 app.get('/game', (req, res) => {
   console.log('request recieved');
-  res.sendFile(`${__dirname}/../client/game.html`);
+  res.sendFile(path.resolve('client/game.html'));
 });
 
 
