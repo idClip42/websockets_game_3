@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script src="/socket.io/socket.io.js"></script>
+	  <script src="/socket.io/socket.io.js"></script>
     <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
     <script type="text/babel" src="controller.js"></script> 
     <style>
@@ -12,10 +12,18 @@
         }
         .container {
           border: solid 1px black;
+          max-width: 75vh;
         }
         .container > button {
-          width: 80vw;
-          height: 5vw;
+          width: 90%;
+          margin: 4%;
+          height: 10vh;
+          font-size: 3em;
+        }
+        .container > input {
+          width: 90%;
+          margin: 2%;
+          height: 10vh;
           font-size: 3em;
         }
     </style>
@@ -23,8 +31,14 @@
     <title>The Thing: PARTY!</title>
 </head>
 <body>
-  <h1 class="message"></h1>
-  <div class="action container"><button>HI</button></div>
+  <h1 class="message">Welcome to the Arctic Research Facility</h1>
+  <div class="login container">
+  <h2>Name</h2>
+  <input class="name"></input>
+  <h2>Room</h2>
+  <input class="room"></input>
+  <button class="submit">ENTER</button>
+  <div class="action container"></div>
   <div class="vote container"></div>
 </body>
 </html>

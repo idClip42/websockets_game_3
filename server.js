@@ -37,12 +37,21 @@ http.listen(port, '0.0.0.0', 511, () => {
 
 // FILE SERVING HANDLED BY EXPRESS
 
-// const app = http.createServer(onRequest).listen(port);
+// DOESN'T DO ANYTHING
 app.get('/', (req, res) => {
+  // does not run, just returns index
+  console.log('root request recieved');
+  res.sendFile(`${__dirname}/client/controller.html`);
+});
+
+
+// SEND CONTROLLER
+app.get('/controller', (req, res) => {
   console.log('request recieved');
   res.sendFile(`${__dirname}/client/controller.html`);
 });
 
+// SEND CANVAS GAME
 app.get('/game', (req, res) => {
   console.log('request recieved');
   res.sendFile(`${__dirname}/client/game.html`);
