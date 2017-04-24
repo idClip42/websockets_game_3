@@ -42,9 +42,10 @@ app.get('/', (req, res) => {
   console.log('request recieved');
   res.sendFile(`${__dirname}/client/index.html`);
 });
+
 app.get('/game', (req, res) => {
   console.log('request recieved');
-  res.sendFile(`${__dirname}/../client/game.html`);
+  res.sendFile(`${__dirname}/client/game.html`);
 });
 
 
