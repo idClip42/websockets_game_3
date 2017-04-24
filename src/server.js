@@ -218,6 +218,8 @@ io.sockets.on('connection', (socket) => {
   socket.on('joinGame', (data) => {
     // data here should hold a room property and a player name property
 
+    if(!data) return;
+
     const game = roomGames[data.room];
 
     // If the game is not in the Lobby, cannot add a player
