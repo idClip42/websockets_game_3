@@ -231,6 +231,10 @@ io.sockets.on('connection', (socket) => {
     if(!data) return;
 
     const game = roomGames[data.room];
+    //console.log(data.room);
+
+    // Returns if no room by this name exists
+    if(!game) return;
 
     // If the game is not in the Lobby, cannot add a player
     if (game.state !== GAMESTATE.LOBBY) return;
