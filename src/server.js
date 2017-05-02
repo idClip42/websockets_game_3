@@ -307,13 +307,16 @@ io.sockets.on('connection', (socket) => {
     
     console.log("game start requested");
     
-    const game = roomGames[socket.gameRoom];  // socket.room may not be valid
+    const game = roomGames[socket.gameRoom];
+
+    //console.log(game);
 
     // If not in the Lobby, the game has already started
-    if (game.state !== GAMESTATE.LOBBY) return;
+    //if (game.state !== GAMESTATE.LOBBY) return;
     // Game can't start without enough players
     //if (game.players.length < GAME.MIN_PLAYERS) return;
     game.state = GAMESTATE.GATHERING;
+    //console.log(game.state);
     
     console.log("game started");
 
@@ -598,24 +601,28 @@ const gameLoop = () => {
     const game = roomGames[keys[n]];
     const players = game.players;
 
+    //console.log(game.state);
+
     if (game.state === GAMESTATE.LOBBY) {
         // Probably do nothing here
     } else if (game.state === GAMESTATE.GATHERING) {
         // TODO: Timer
       if (doneVoting(players, 'task') === true) {
-        game.state = GAME.VOTING;
+        //console.log("Done gathering.");
+        game.state = GAMESTATE.VOTING;
         playersInAreas(game, players);
         resetVotes(players, 'task');
       }
     } else if (game.state === GAMESTATE.VOTING) {
         // TODO: Timer
       if (votingRound(game, players) === true) {
+        //console.log("Done voting.");
         game.food *= (game.food < 0) ? -1 : 1;    // If we didn't use the remaining supplies,
         game.chems *= (game.chems < 0) ? -1 : 1;  // their counts were made negative to work with the loops
 
         endVotingRound(game, players);
 
-        game.state = GAME.GATHERING;
+        game.state = GAMESTATE.GATHERING;
       }
     } else if (game.state === GAMESTATE.INFO) {
         // This is here in case we need it
