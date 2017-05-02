@@ -120,7 +120,7 @@ const TASKS = Object.freeze({
 const GameCreator = (room) => {
   const game = {};
 
-  gamea = [];                  // List of players in game
+  game.players = [];                  // List of players in game
   game.room = room;                   // Name of the room this game is in
   game.state = GAMESTATE.LOBBY;       // The current state of the game
   game.food = 0;                      // How much food has been collected
@@ -233,7 +233,7 @@ io.sockets.on('connection', (socket) => {
     // (data should probably hold the player object only,
     //  since that's the only thing the player will be updating)
 
-    emitUpdate(socket.room);  // socket.room may not be valid
+    emitUpdate(socket.gameRoom);  // socket.room may not be valid
     // This line is not needed if an update is sent out every frame in game loop
     // Can probably be deleted
   });
@@ -271,6 +271,7 @@ io.sockets.on('connection', (socket) => {
     // Let them back in and set their player.disabled property to false
 
     socket.join(data.room);
+    socket.gameRoom = data.room;
     
     // only add player to player list if this is the first time s/he joined.
     if (elemWithProperty(game.players,"name",data.name) === undefined) {    
@@ -303,16 +304,20 @@ io.sockets.on('connection', (socket) => {
     // This should probably be called by a player
     // Perhaps the first player to join, like in Jackbox games?
     // Or perhaps just any player
-
-    const game = roomGames[socket.room];  // socket.room may not be valid
+    
+    console.log("game start requested");
+    
+    const game = roomGames[socket.gameRoom];  // socket.room may not be valid
 
     // If not in the Lobby, the game has already started
     if (game.state !== GAMESTATE.LOBBY) return;
     // Game can't start without enough players
-    if (game.players.length < GAME.MIN_PLAYERS) return;
+    //if (game.players.length < GAME.MIN_PLAYERS) return;
     game.state = GAMESTATE.GATHERING;
+    
+    console.log("game started");
 
-    emitUpdate(socket.room);  // socket.room may not be valid
+    emitUpdate(socket.gameRoom);  // socket.room may not be valid
     // For the same reasons as above, this is probably not needed
   });
 

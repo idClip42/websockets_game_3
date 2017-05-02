@@ -82,9 +82,7 @@ const initSockets = () => {
         b.class = "startGame";
         b.innerHTML = "START GAME"
         b.onclick = () => {
-          socket.emit("startGame",btn.innerHTML);
-          resolveChoice();
-          if (debug) log(btn.innerHTML);
+          socket.emit("startGame");
         }
         document.body.appendChild(b);
       }
