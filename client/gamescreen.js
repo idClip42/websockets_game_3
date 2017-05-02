@@ -200,8 +200,10 @@ const displayLobby = () => {
     ctx.font = "30px Arial";
     let x = canvas.width/2;
     let y = 150;
+    ctx.fillText("WAITING TO START...",x,y);
+    ctx.fillText("IN LOBBY:",x,y + 35);
     for(let n = 0; n < names.length; ++n){
-        ctx.fillText(names[n].name, x, y + (n * 35));
+        ctx.fillText(names[n].name, x, y + ((n+2) * 35));
     }
 };
 

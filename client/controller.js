@@ -24,11 +24,7 @@ const hideLogin = () => {
 
 const joinGame = () => {
   log("asdF");
-  socket.emit("joinGame",{ "name": nameEl.innerHTML, "room": roomEl.innerHTML });
-  // temporary
-  messageEl.innerHTML = "You are not infected."
-  hideLogin();
-  displayPlayerChoices();
+  socket.emit("joinGame",{ "name": nameEl.value, "room": roomEl.value });
 }
 
 // choice made
@@ -64,13 +60,44 @@ const displayPlayerChoices = () => {
   createChoice("chems");
 }
 
+const updateGame = (data) => {
+
+}
+
 const initSockets = () => {
     socket = io.connect();
 
     socket.on("update", (data) => {
-        updateGameObject(data);
+      updateGame(data);
+    });
+    
+    socket.on("join failed", (data) => {
+      alert("ERROR: "+data);
+    });
+    
+    socket.on("join succeeded", (data) => {
+      // first player gets start button
+      if (data === "first") {
+        const b = document.createElement("button");
+        b.class = "startGame";
+        b.innerHTML = "START GAME"
+        b.onclick = () => {
+          socket.emit("startGame",btn.innerHTML);
+          resolveChoice();
+          if (debug) log(btn.innerHTML);
+        }
+        document.body.appendChild(b);
+      }
+      hideLogin();
+      messageEl.innerHTML = "WAITING FOR PLAYERS"
     });
 };
+
+const GatheringPhase = () => {
+  // temporary
+  messageEl.innerHTML = "GATHERING PHASE"
+  displayPlayerChoices();
+}
 
 const initPage = () => {
     document.onscroll = function(e){

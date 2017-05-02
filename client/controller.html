@@ -27,6 +27,24 @@
           height: 10vh;
           font-size: 3em;
         }
+        .health {
+          padding: 1%;
+        }
+        .health > div {
+          display: inline-block;
+          width: 6vh;
+          height: 6vh;
+          margin: 3vh;
+          border: 1vh solid black;
+          text-align: center;
+        }
+        
+        .full {
+          color: background-white;
+        }
+        .HUD {
+          font-size: 2em;
+        }
     </style>
 
     <title>The Thing: PARTY!</title>
@@ -39,6 +57,16 @@
     <h2>Room</h2>
     <input class="room"></input>
     <button class="submit">ENTER</button>
+  </div>
+  <div class="HUD">
+    <div>Health</div>
+    <div class="health">
+      <div class="full">?</div>
+      <div class="full">?</div>
+      <div class="full">?</div>
+      <div class="full">?</div>
+      <div class="full">?</div>
+    </div>
   </div>
   <div class="action container"></div>
   <div class="vote container"></div>

@@ -120,7 +120,7 @@ const TASKS = Object.freeze({
 const GameCreator = (room) => {
   const game = {};
 
-  game.players = [];                  // List of players in game
+  gamea = [];                  // List of players in game
   game.room = room;                   // Name of the room this game is in
   game.state = GAMESTATE.LOBBY;       // The current state of the game
   game.food = 0;                      // How much food has been collected
@@ -181,6 +181,19 @@ const frameTime = 1000 / 60;          // The "framerate" - updates 60 times a se
 *
 */
 
+// search an array for an object with a given property == a value
+const elemWithProperty = (arrayOfObjects, propertyName, match) => {
+  // loop
+  for (let i = 0; i < arrayOfObjects.length; i++) {
+    // match found
+    if (match === arrayOfObjects[i][propertyName]) {
+      return arrayOfObjects[i];
+    }
+  }
+  // no match found
+  return undefined;
+};
+
 
 // Emits the Game object to everyone in the room
 const emitUpdate = (room) => {
@@ -234,21 +247,41 @@ io.sockets.on('connection', (socket) => {
     //console.log(data.room);
 
     // Returns if no room by this name exists
-    if(!game) return;
+    if(!game) {
+      // send controller join failed
+      socket.emit("join failed", "room does not exist");
+      return;
+    }
 
     // If the game is not in the Lobby, cannot add a player
-    if (game.state !== GAMESTATE.LOBBY) return;
+    if (game.state !== GAMESTATE.LOBBY) {
+      // send controller join failed
+      socket.emit("join failed", "game already started");
+      return;
+    }
     // If the game has maxed out it's players, cannot add any more
-    if (game.players.length >= GAME.MAX_PLAYERS) return;
+    if (game.players.length >= GAME.MAX_PLAYERS){
+      // send controller join failed
+      socket.emit("join failed", "too many players are in this lobby");
+      return;
+    }
 
     // TODO: Check if their socket id matches one already in the player list first
     // If it does, this is a returning player who was disconnected
     // Let them back in and set their player.disabled property to false
 
     socket.join(data.room);
-    const player = PlayerCreator(data.name, socket.id);
-    game.players.push(player);
+    
+    // only add player to player list if this is the first time s/he joined.
+    if (elemWithProperty(game.players,"name",data.name) === undefined) {    
+      const player = PlayerCreator(data.name, socket.id);
+      game.players.push(player);
+    }
 
+    // send controller join succeeded
+    const first = (game.players.length === 1 ? "first" : undefined);
+    socket.emit("join succeeded",first);
+    console.log(`${data.name} joined room ${data.room}`);
     emitUpdate(data.room);
     // For the same reasons as above, this is probably not needed
   });
@@ -259,7 +292,9 @@ io.sockets.on('connection', (socket) => {
     // If there are no rooms with this name, makes one
     if (!roomGames[name]) { roomGames[name] = GameCreator(name); }
     socket.join(name);
-
+    
+    console.log(`Room ${name} created`);
+    
     emitUpdate(name);
     // For the same reasons as above, this is probably not needed
   });
@@ -502,13 +537,14 @@ const votingRound = (g, p) => {
 
 
 //
-// This looks at each of the task rooms
+// This looks at each of the task areas 
+//         (not to be confused with socket "rooms")
 // (food, chems, generator)
-// Looks at who's in each room
+// Looks at who's in each area
 // And converts players to The Thing as necessary,
 // According to game rules
 //
-const playersInRooms = (g, pl) => {
+const playersInAreas = (g, pl) => {
   const game = g;
   const players = pl;
 
@@ -519,8 +555,8 @@ const playersInRooms = (g, pl) => {
     const thing = [];
 
     for (let p = 0; p < players.length; p += 1) {
-      if (p.task === t) {
-        if (p.thing === true) {
+      if (players[p].task === t) {
+        if (players[p].thing === true) {
           thing.push(p);
         } else if (p.health <= 0) {
           starved.push(p);
@@ -534,12 +570,12 @@ const playersInRooms = (g, pl) => {
     if (thing.length > 1) {
       // If the powers out, everyone is converted
       if (game.generator <= 0) {
-        for (let h = 0; h < healthy.length; h += 1) { healthy[h].thing = true; }
+        for (let h = 0; h < healthy.length; h += 1) { players[healthy[h]].thing = true; }
       }
       // Any starved people are converted
-      for (let s = 0; s < starved.length; s += 1) { starved[s].thing = true; }
+      for (let s = 0; s < starved.length; s += 1) { players[starved[s]].thing = true; }
       // If there is only one healthy person, they are converted
-      if (healthy.length === 1) { healthy[0].thing = true; }
+      if (healthy.length === 1) { players[healthy[0]].thing = true; }
     }
   }
 };
@@ -563,7 +599,7 @@ const gameLoop = () => {
         // TODO: Timer
       if (doneVoting(players, 'task') === true) {
         game.state = GAME.VOTING;
-        playersInRooms(game, players);
+        playersInAreas(game, players);
         resetVotes(players, 'task');
       }
     } else if (game.state === GAMESTATE.VOTING) {
