@@ -403,8 +403,13 @@ const endVotingRound = (g, p) => {
 const doneVoting = (pl, property) => {
   const players = pl;
 
+  //console.log(players);
+
   let allVoted = true;
-  for (let p = 0; p < players; p += 1) {
+  for (let p = 0; p < players.length; p += 1) {
+
+    //console.log(players[p][property]);
+
     if (players[p][property] === -1 && players[p].disabled === false) { allVoted = false; }
   }
   return allVoted;
@@ -602,13 +607,14 @@ const gameLoop = () => {
     const players = game.players;
 
     //console.log(game.state);
+    //console.log(players);
 
     if (game.state === GAMESTATE.LOBBY) {
         // Probably do nothing here
     } else if (game.state === GAMESTATE.GATHERING) {
         // TODO: Timer
       if (doneVoting(players, 'task') === true) {
-        //console.log("Done gathering.");
+        console.log("Done gathering.");
         game.state = GAMESTATE.VOTING;
         playersInAreas(game, players);
         resetVotes(players, 'task');
@@ -616,7 +622,7 @@ const gameLoop = () => {
     } else if (game.state === GAMESTATE.VOTING) {
         // TODO: Timer
       if (votingRound(game, players) === true) {
-        //console.log("Done voting.");
+        console.log("Done voting.");
         game.food *= (game.food < 0) ? -1 : 1;    // If we didn't use the remaining supplies,
         game.chems *= (game.chems < 0) ? -1 : 1;  // their counts were made negative to work with the loops
 
