@@ -126,6 +126,12 @@ const updateGameObject = (data) => {
     for(let n = 0; n < data.players.length; ++n){
         // If there is no game, stop this loop
         if(!game) break;
+
+        // Determines room by checking task
+        // If task index not in room list
+        // set it to the index of the main room
+        let task = data.players[n].task;
+        if(!rooms[task]) task = 3;
     
         // If this player is new, add them to the playerDraws
         if(!game.players || !game.players[n]) {
@@ -136,18 +142,20 @@ const updateGameObject = (data) => {
                 tx: 0,
                 ty: 0
             };
+            setPlayerTarget(playerDraws[n], rooms[task]);
         }        
         // only update once per action   
-        if (data.state !== prevState) {
-          // Determines room by checking task
-          // If task index not in room list
-          // set it to the index of the main room
-          let task = data.players[n].task;
-          if(!rooms[task]) task = 3;
+        //if (data.state !== prevState) {
+
+        if(game && game.players && game.players[n] && 
+            game.players[n].task != data.players[n].task){
         
           // Update the playerdraws with their location
           setPlayerTarget(playerDraws[n], rooms[task]);
         } 
+
+        //if(game.players[n].task != data.players[n].task)
+        // setPlayerTarget(playerDraws[n], rooms[data.players[n].task]);
     }
     
     // Updates all the game data
