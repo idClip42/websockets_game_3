@@ -283,7 +283,7 @@ io.sockets.on('connection', (socket) => {
     if (elemWithProperty(game.players, 'name', data.name) === undefined) {
       const player = PlayerCreator(data.name, socket.id);
       game.players.push(player);
-      thisPlayerIndex = players.length - 1;
+      thisPlayerIndex = game.players.length - 1;
     } else {
       //Find player
       //for(let n = 0; n < players.length; ++n){
@@ -391,6 +391,9 @@ io.sockets.on('connection', (socket) => {
       // DELETE THE GAME
       //delete roomGames[thisRoom];
     //} else {
+    if(!roomGames[thisRoom])
+      return;
+
     if(isMain == false)
       roomGames[thisRoom].players[thisPlayerIndex].disabled = true;
 
@@ -398,7 +401,7 @@ io.sockets.on('connection', (socket) => {
     if(roomGames[thisRoom].connections <= 0)
       delete roomGames[thisRoom];
     //}
-    
+
     // set player.disabled value to true
     // This tells us a player has disconnected
     // They might be back, so we leave the player there
