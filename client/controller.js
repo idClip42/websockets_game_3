@@ -86,7 +86,7 @@ const createVote = (choiceString) => {
   voteContainer.appendChild(btn);
 }
 
-const createNoneVote = () = > {
+const createNoneVote = () => {
   const btn = document.createElement("button");
   btn.innerHTML = "None";
   btn.onclick = () => {
