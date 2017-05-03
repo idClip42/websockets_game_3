@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "nodemon": "nodemon --watch ./src/server.js ./src/server.js",
+    "nodemon": "nodemon --watch ./src ./src/server.js",
     "start": "node ./src/server.js",
-    "pretest": "eslint ./src/server.js --fix",
+    "pretest": "eslint ./src --fix",
     "test": "echo \"Tests complete\"",
     "doThing": "eslint --init"
   },
