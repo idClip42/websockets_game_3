@@ -440,6 +440,11 @@ const checkGameOver = (g) => {
     game.state = GAMESTATE.LOBBY;
     emitUpdate(game.room);
   }
+  if (thing.length <= 0) {
+    game.message = "GAME OVER: The Humans won";
+    game.state = GAMESTATE.LOBBY;
+    emitUpdate(game.room);
+  }
 }
 
 //
@@ -477,7 +482,7 @@ const doneVoting = (pl, property) => {
 
   let allVoted = true;
   for (let p = 0; p < players.length; p += 1) {
-    if (players[p][property] === -1 && players[p].disabled === false) { allVoted = false; }
+    if (players[p][property] === -1 && players[p].disabled === false && players[p].dead === false) { allVoted = false; }
   }
   return allVoted;
 };
@@ -556,7 +561,13 @@ const votingRound = (g, p) => {
   let done = true;
   // This will have a timer that counts down from GAME.VOTING_TIME
 
+
+
+
+
+
   // FOOD PHASE
+  //*
   if (game.food > 0) {
     game.message = `Vote for who gets the food. There is ${game.food} food left.`;
     if (doneVoting(players, 'vote') === true) {
@@ -578,7 +589,8 @@ const votingRound = (g, p) => {
       done = false;
     }
   } 
-  if (game.chems > GAME.CHEMS_TO_TEST) {
+  //if (game.chems > GAME.CHEMS_TO_TEST) {
+  else if (game.chems >= GAME.CHEMS_TO_TEST) {
     // CHEM PHASE
 
     game.message = `Vote for who gets tested. There are enough chems for ${Math.floor(game.chems / GAME.CHEMS_TO_TEST)} tests.`;
@@ -601,7 +613,10 @@ const votingRound = (g, p) => {
       done = false;
     }
   }
-  return done;
+  else return true;
+  //*/
+  //return done;
+  return false;
 };
 
 
