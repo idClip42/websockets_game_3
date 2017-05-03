@@ -90,7 +90,7 @@ const createNoneVote = () => {
   const btn = document.createElement("button");
   btn.innerHTML = "None";
   btn.onclick = () => {
-    socket.emit(eventName,{ "name": name, "choice": "_^_&$^%%" });
+    socket.emit('vote',{ "name": name, "choice": "_^_&$^%%" });
     removeChoices();
   }
   voteContainer.appendChild(btn);
