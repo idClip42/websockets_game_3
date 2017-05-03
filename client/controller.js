@@ -86,10 +86,21 @@ const createVote = (choiceString) => {
   voteContainer.appendChild(btn);
 }
 
+const createNoneVote = () = > {
+  const btn = document.createElement("button");
+  btn.innerHTML = "None";
+  btn.onclick = () => {
+    socket.emit(eventName,{ "name": name, "choice": "_^_&$^%%" });
+    removeChoices();
+  }
+  voteContainer.appendChild(btn);
+}
+
 const displayVoteChoices = () => {
   for (let i=0; i<game.players.length; i++) {
     createVote(game.players[i].name);
   }
+  createNoneVote();
 }
 
 // player choices on a given turn
