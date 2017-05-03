@@ -576,7 +576,7 @@ const votingRound = (g, p) => {
 
       // IF THE CHOSEN PLAYER IS A TIE, STOPS GIVING OUT FOOD
       } else if (choice === -1) {
-        game.message = 'No one is given the food due to tie vote. Moving on to chems.';
+        game.message = 'No one is given the food due to tie vote.';
         game.food *= -1;
 
       // OTHERWISE GIVES FOOD TO THE CHOSEN PLAYER AND GOES TO NEXT PIECE OF FOOD
@@ -720,7 +720,6 @@ const gameLoop = () => {
       if (doneVoting(players, 'task') === true) {
         game.state = GAMESTATE.VOTING;
         playersInAreas(game, players);
-        resetVotes(players, 'task');
       }
     } else if (game.state === GAMESTATE.VOTING) {
         // TODO: Timer
@@ -732,6 +731,8 @@ const gameLoop = () => {
         endVotingRound(game, players);
 
         game.state = GAMESTATE.GATHERING;
+
+        resetVotes(players, 'task');
       }
     } else if (game.state === GAMESTATE.INFO) {
         // This is here in case we need it
