@@ -131,6 +131,8 @@ const GameCreator = (room) => {
   game.GAMESTATE = GAMESTATE;         // A copy of the enumerations for gamestate
   game.TASKS = TASKS;                 // and tasks, for use on the client side
 
+  game.connections = 0;               // How many clients have connected to the game
+
   return Object.seal(game);
 };
 
@@ -228,6 +230,10 @@ const emitUpdate = (room) => {
 io.sockets.on('connection', (socket) => {
   console.log('connected');
 
+  let isMain = false;
+  let thisPlayerIndex = -1;
+  let thisRoom = undefined;
+
   socket.on('update', (data) => {
     // Update individual values in the Game object here
     // (data should probably hold the player object only,
@@ -271,12 +277,25 @@ io.sockets.on('connection', (socket) => {
 
     socket.join(data.room);
     socket.gameRoom = data.room;
+    thisRoom = data.room;
 
     // only add player to player list if this is the first time s/he joined.
     if (elemWithProperty(game.players, 'name', data.name) === undefined) {
       const player = PlayerCreator(data.name, socket.id);
       game.players.push(player);
+      thisPlayerIndex = players.length - 1;
+    } else {
+      //Find player
+      //for(let n = 0; n < players.length; ++n){
+      //  if(players[n].name = data.name &&
+      //    players[n].disabled == true)
+      //    players[n].disabled = false;
+      //}
+      let p = elemWithProperty(game.players,"name",data.name);
+      if(p && p.disabled === true) p.disabled = false;
     }
+
+    game.connections += 1;
 
     // send controller join succeeded
     const first = (game.players.length === 1 ? 'first' : undefined);
@@ -290,10 +309,17 @@ io.sockets.on('connection', (socket) => {
     // The main screen will call this to make a new game
 
     // If there are no rooms with this name, makes one
-    if (!roomGames[name]) { roomGames[name] = GameCreator(name); }
+    if (!roomGames[name]) { 
+      roomGames[name] = GameCreator(name); 
+    }
     socket.join(name);
 
+    roomGames[name].connections += 1
+
     console.log(`Room ${name} created`);
+
+    isMain = true;
+    thisRoom = name;
 
     emitUpdate(name);
     // For the same reasons as above, this is probably not needed
@@ -360,6 +386,19 @@ io.sockets.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+
+    //if(isMain == true){
+      // DELETE THE GAME
+      //delete roomGames[thisRoom];
+    //} else {
+    if(isMain == false)
+      roomGames[thisRoom].players[thisPlayerIndex].disabled = true;
+
+    roomGames[thisRoom].connections -= 1;
+    if(roomGames[thisRoom].connections <= 0)
+      delete roomGames[thisRoom];
+    //}
+    
     // set player.disabled value to true
     // This tells us a player has disconnected
     // They might be back, so we leave the player there
