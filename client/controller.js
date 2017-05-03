@@ -123,6 +123,8 @@ const updateGame = (data) => {
   }
   if (prevPhase === game.state) return;
   if (self.thing) { 
+    // Should this be self.thing === true?
+    // It seems fine now, but maybe if it isn't fine later this is why
     q(".healthLabel").innerHTML = "You are the thing"; 
   }
   prevPhase = game.state;

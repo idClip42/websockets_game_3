@@ -323,6 +323,7 @@ io.sockets.on('connection', (socket) => {
       case 'generator':
         player.task = TASKS.POWER;
         game.generator += 1;
+        if(game.generator >= GAME.MAX_POWER) game.generator = GAME.MAX_POWER;
         break;
     }
   });
@@ -682,12 +683,21 @@ const playersInAreas = (g, pl) => {
     if (thing.length > 1) {
       // If the powers out, everyone with the Thing is converted
       if (game.generator <= 0) {
-        for (let h = 0; h < healthy.length; h += 1) { players[healthy[h]].thing = true; }
+        for (let h = 0; h < healthy.length; h += 1) { 
+          players[healthy[h]].thing = true; 
+          checkGameOver(game);
+        }
       }
       // Any starved people with the Thing are converted
-      for (let s = 0; s < starved.length; s += 1) { players[starved[s]].thing = true; }
+      for (let s = 0; s < starved.length; s += 1) { 
+        players[starved[s]].thing = true; 
+        checkGameOver(game);
+      }
       // If there is only one healthy person with the Thing, they are converted
-      if (healthy.length === 1) { players[healthy[0]].thing = true; }
+      if (healthy.length === 1) { 
+        players[healthy[0]].thing = true; 
+        checkGameOver(game);
+      }
     }
   }
 };
