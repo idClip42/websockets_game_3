@@ -558,64 +558,71 @@ const votingRound = (g, p) => {
   const game = g;
   const players = p;
 
-  let done = true;
-  // This will have a timer that counts down from GAME.VOTING_TIME
-
-
-
-
-
-
   // FOOD PHASE
-  //*
+  // IF THERE IS MORE FOOD TO BE DOLED OUT
   if (game.food > 0) {
     game.message = `Vote for who gets the food. There is ${game.food} food left.`;
+
+    // IF PLAYERS ARE DONE VOTING
     if (doneVoting(players, 'vote') === true) {
+
+      // GETS THE CHOSEN PLAYER
       const choice = voteCounting(players);
+
+      // IF THE CHOSEN PLAYER IS "NO ONE", STOPS GIVING OUT FOOD
       if (choice === players.length) {
-        game.message = 'No one is given the food. Moving on to chems.';
+        game.message = 'No one is given the food.';
         game.food *= -1;
+
+      // IF THE CHOSEN PLAYER IS A TIE, STOPS GIVING OUT FOOD
       } else if (choice === -1) {
         game.message = 'No one is given the food due to tie vote. Moving on to chems.';
         game.food *= -1;
+
+      // OTHERWISE GIVES FOOD TO THE CHOSEN PLAYER AND GOES TO NEXT PIECE OF FOOD
       } else {
         players[choice].health = GAME.MAX_HEALTH;
         game.food -= 1;
         game.message = `${players[choice].name} is given the food.`;
       }
+
+      // RESETS THE VOTES AFTER A VOTE HAS BEEN HAD
       resetVotes(players, 'vote');
     } 
-    else {
-      done = false;
-    }
-  } 
-  //if (game.chems > GAME.CHEMS_TO_TEST) {
-  else if (game.chems >= GAME.CHEMS_TO_TEST) {
-    // CHEM PHASE
+  // CHEM PHASE
+  // IF THERE ARE ENOUGH CHEMS TO TEST SOMEONE
+  } else if (game.chems >= GAME.CHEMS_TO_TEST) {
 
     game.message = `Vote for who gets tested. There are enough chems for ${Math.floor(game.chems / GAME.CHEMS_TO_TEST)} tests.`;
+
+    //IF PLAYERS ARE DONE VOTING
     if (doneVoting(players, 'vote') === true) {
       const choice = voteCounting(players);
+
+      // IF THE CHOSEN PLAYER IS "NO ONE", STOPS CHEM STUFF
       if (choice === players.length) {
         game.message = 'No one is tested.';
         game.chems *= -1;
+
+      // IF THE CHOSEN PLAYER IS A TIE, STOPS CHEM STUFF
       } else if (choice === -1) {
         game.message = 'No one is tested due to tie vote.';
         game.chems *= -1;
+
+      // OTHERWISE, TESTS THE CHOSEN PLAYER
       } else {
         players[choice].health = GAME.MAX_HEALTH;
         game.chems -= GAME.CHEMS_TO_TEST;
         testPlayer(game, players[choice]);
       }
+
+      // RESETS THE VOTES AFTER A VOTE HAS BEEN COMPLETED
       resetVotes(players, 'vote');
     }
-    else {
-      done = false;
-    }
   }
+  // IF THERE IS NO MORE FOOD OR CHEMS TO VOTE ON, STATE MOVES ON
   else return true;
-  //*/
-  //return done;
+  // OTHERWISE, WE STAY IN THE VOTING STATE
   return false;
 };
 

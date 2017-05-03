@@ -358,10 +358,14 @@ const drawStats = () => {
     const blockOffset = 15;
 
     ctx.fillText("Food:", x, y);
-    for(let n = 0; n < game.food; ++n)
+    let foodCount = game.food;
+    if(foodCount < 0) foodCount *= -1;
+    for(let n = 0; n < foodCount; ++n)
         ctx.fillRect(x + length + blockOffset*n, y, blockWidth, blockWidth);
     ctx.fillText("Chems:", x, y + height);
-    for(let n = 0; n < game.chems; ++n)
+    let chemCount = game.chems;
+    if(chemCount < 0) chemCount *= -1;
+    for(let n = 0; n < chemCount; ++n)
         ctx.fillRect(x + length + blockOffset*n, y + height, blockWidth, blockWidth);
     ctx.fillText("Power:", x, y + height * 2);
     for(let n = 0; n < game.generator; ++n)
