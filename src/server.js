@@ -244,7 +244,6 @@ io.sockets.on('connection', (socket) => {
     if (!data) return;
 
     const game = roomGames[data.room];
-    // console.log(data.room);
 
     // Returns if no room by this name exists
     if (!game) {
@@ -478,9 +477,6 @@ const endVotingRound = (g, p) => {
 //
 const doneVoting = (pl, property) => {
   const players = pl;
-
-  //console.log(players);
-
   let allVoted = true;
   for (let p = 0; p < players.length; p += 1) {
     if (players[p][property] === -1 && players[p].disabled === false && players[p].dead === false) { allVoted = false; }
@@ -663,38 +659,53 @@ const playersInAreas = (g, pl) => {
 
   // Goes through each of the tasks/rooms
   for (let t = 0; t < 3; t += 1) {
+
+    console.log("Checking players in Task: " + t);
+
     const healthy = [];
     const starved = [];
     const thing = [];
 
     for (let p = 0; p < players.length; p += 1) {
+
+      console.log("\tPlayer " + p + " has task: " + players[p].task);
+
       if (players[p].task === t) {
+        console.log("\t\tTask matches");
         if (players[p].thing === true) {
+          console.log("\t\tAdding player " + p + " to thing list");
           thing.push(p);
         } else if (p.health <= 0) {
+          console.log("\t\tAdding player " + p + " to starved list");
           starved.push(p);
         } else {
+          console.log("\t\tAdding player " + p + " to healthy list");
           healthy.push(p);
         }
       }
     }
 
     // If theres a Thing in the room
-    if (thing.length > 1) {
+    if (thing.length > 0) {
+      console.log("\tThere's a thing in the room");
       // If the powers out, everyone with the Thing is converted
       if (game.generator <= 0) {
+        console.log("\tThe generator is out");
         for (let h = 0; h < healthy.length; h += 1) { 
+          console.log("\t\tHealthy player " + healthy[h] + " is now the Thing");
           players[healthy[h]].thing = true; 
           checkGameOver(game);
         }
       }
       // Any starved people with the Thing are converted
       for (let s = 0; s < starved.length; s += 1) { 
+        console.log("\t\tStarved player " + starved[s] + " is now the Thing");
         players[starved[s]].thing = true; 
         checkGameOver(game);
       }
       // If there is only one healthy person with the Thing, they are converted
       if (healthy.length === 1) { 
+        console.log("\t\tHealthy player " + healthy[0] + " is now the Thing");
         players[healthy[0]].thing = true; 
         checkGameOver(game);
       }
@@ -719,9 +730,6 @@ const gameLoop = () => {
     //if (!game.state) continue;
 
     const players = game.players;
-
-    //console.log(game.state);
-    //console.log(players);
 
     if (game.state === GAMESTATE.LOBBY) {
         // Probably do nothing here
