@@ -54,74 +54,19 @@ const rooms = [
 //
 let game = {
     message: "Enter room name",
-/*
-    // Filled with demo info
-    GAMESTATE: Object.freeze({
-      LOBBY: 0,
-      GATHERING: 1,
-      VOTING: 2,
-      INFO: 3,
-    }),
-    state: 0,
-    players: [
-    
-    //    {
-    //        name: "Alex",
-    //    },
-    //    {
-    //        name: "Ben",
-    //    },
-    //    {
-    //        name: "Frankenstein",
-    //    },
-        
-    ],
-    food: 3,
-    chems: 5,
-    generator: 9,
-    message: "this is a demo message",
-    */
 };
 
 //
 // The players to be drawn on screen
 // in the map
 //
-const playerDraws = [
-    // Filled with demo info
-    /*
-    {
-        name: "Alex",
-        x: 0,
-        y: 0,
-        tx: 0,
-        ty: 0
-    },
-    {
-        name: "Ben",
-        x: 0,
-        y: 0,
-        tx: 0,
-        ty: 0
-    },
-    {
-        name: "Frankenstein",
-        x: 0,
-        y: 0,
-        tx: 0,
-        ty: 0
-    },
-    */
-];
+const playerDraws = [];
 
 const updateGameObject = (data) => {
     
     // An update means we are in a game,
     // which means we don't need to enter a game name
-    //e.target.hidden = true;
     document.querySelector("#roomName").hidden = true;
-
-    //console.log("Got a data");
 
     // Goes through each of the players
     for(let n = 0; n < data.players.length; ++n){
@@ -144,9 +89,7 @@ const updateGameObject = (data) => {
                 ty: 0
             };
             setPlayerTarget(playerDraws[n], rooms[task]);
-        }        
-        // only update once per action   
-        //if (data.state !== prevState) {
+        } 
 
         if(game && game.players && game.players[n] && 
             game.players[n].task != data.players[n].task){
@@ -154,9 +97,6 @@ const updateGameObject = (data) => {
           // Update the playerdraws with their location
           setPlayerTarget(playerDraws[n], rooms[task]);
         } 
-
-        //if(game.players[n].task != data.players[n].task)
-        // setPlayerTarget(playerDraws[n], rooms[data.players[n].task]);
     }
     
     // Updates all the game data
@@ -164,7 +104,6 @@ const updateGameObject = (data) => {
 };
 
 const initSockets = () => {
-    //*
     socket = io.connect();
 
     socket.on("update", (data) => {
@@ -172,7 +111,6 @@ const initSockets = () => {
     });
 
     socket.emit("joinGame");
-    //*/
 };
 
 const initPage = () => {
@@ -202,7 +140,7 @@ const init = () => {
 window.onload = init;
 
 const displayMakeRoom = () => {
-
+    // This is the "Name the room" thingy
 };
 
 const displayLobby = () => {
@@ -286,10 +224,8 @@ const drawRooms = () => {
     ctx.textBaseline="top"; 
     ctx.font = "20px Arial";
 
-    //let keys = Object.keys(rooms);
-    //for(let n = 0; n < keys.length; ++n){
     for(let n = 0; n < rooms.length; ++n){
-        //let r = rooms[keys[n]];
+
         let r = rooms[n];
         let x = r.x * canvas.width;
         let y = r.y * canvas.height;
@@ -317,7 +253,6 @@ const setPlayerTarget = (player, room) => {
 const setPlayerTargets = () => {
     for(let n = 0; n < playerDraws.length; ++n){
         let player = playerDraws[n];
-        //let room = rooms.main;
         let room = rooms[3];
         setPlayerTarget(player, room);
     }
