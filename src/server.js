@@ -403,8 +403,12 @@ const testPlayer = (g, p) => {
   const game = g;
   const player = p;
 
-  if (player.thing === false) { game.message = `${player.name} is tested and found to be human.`; } else {
+  if (player.thing === false) { 
+    game.message = `${player.name} is tested and found to be human.`; 
+  } 
+  else {
     game.message = `${player.name} is tested and is revealed to be The Thing! They are quickly killed`;
+    player.health = 0; 
     player.dead = true;
   }
 };
@@ -422,14 +426,19 @@ const checkGameOver = (g) => {
   const healthy = [];
   
   for (let p = 0; p < players.length; p += 1) {
-    if (players[p].task === t) {
-      if (players[p].thing === true) {
+    if (!players[p].dead) {
+      if (players[p].thing) {
         thing.push(p);
       } else {
         healthy.push(p);
       }
     }
   } 
+  if (healthy.length <= 0) {
+    game.message = "GAME OVER: The Thing won";
+    game.state = GAMESTATE.LOBBY;
+    emitUpdate(game.room);
+  }
 }
 
 //
@@ -450,6 +459,9 @@ const endVotingRound = (g, p) => {
   for (let n = 0; n < players.length; n += 1) {
     if (players[n].thing === false && players[n].health > 0) { players[n].health -= 1; }
   }
+  
+  // check if the Thing or Players won yet
+  checkGameOver(g);
 };
 
 
@@ -640,15 +652,15 @@ const playersInAreas = (g, pl) => {
       }
     }
 
-    // If theres a thing in the room
+    // If theres a Thing in the room
     if (thing.length > 1) {
-      // If the powers out, everyone is converted
+      // If the powers out, everyone with the Thing is converted
       if (game.generator <= 0) {
         for (let h = 0; h < healthy.length; h += 1) { players[healthy[h]].thing = true; }
       }
-      // Any starved people are converted
+      // Any starved people with the Thing are converted
       for (let s = 0; s < starved.length; s += 1) { players[starved[s]].thing = true; }
-      // If there is only one healthy person, they are converted
+      // If there is only one healthy person with the Thing, they are converted
       if (healthy.length === 1) { players[healthy[0]].thing = true; }
     }
   }
@@ -697,7 +709,7 @@ const gameLoop = () => {
       }
     } else if (game.state === GAMESTATE.INFO) {
         // This is here in case we need it
-      console.log('How did we get here?');
+      console.log('How did we get  here?');
     } else {
       console.log(`game.state is somehow ${game.state}`);
     }

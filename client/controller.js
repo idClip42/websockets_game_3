@@ -14,7 +14,9 @@ let name = "";
 let room = "";
 
 let prevPhase;
+let prevMsg;
 let game;
+let self; // self reference refreshed every update;
 
 let hearts;
 
@@ -97,8 +99,7 @@ const displayPlayerChoices = () => {
   createChoice("chems");
 }
 
-const showHealth = (data) => {
-  const self = elemWithProperty(data.players,'name',name);
+const showHealth = () => {
   for (var i=0; i<5; i++) {
     if (i <= self.health) {
       hearts[i].setAttribute("class", "full");
@@ -110,9 +111,19 @@ const showHealth = (data) => {
 
 const updateGame = (data) => {
   game = data;
+  self = elemWithProperty(data.players,'name',name);
+  if (prevMsg !== game.message) {
+    messageEl.innerHTML = game.message;
+    prevMessage = game.message;
+    // if there is a new vote, display the new vote
+    if (game.state == 2) displayVoteChoices();
+  }
   if (prevPhase === game.state) return;
+  if (self.thing) { 
+    q(".healthLabel").innerHTML = "You are the thing"; 
+  }
   prevPhase = game.state;
-  showHealth(data);
+  showHealth();
   switch (game.state) {
     // lobby
     case 0:
@@ -120,14 +131,18 @@ const updateGame = (data) => {
       break;
     // gather
     case 1:
+      removeChoices();
       displayPlayerChoices();
-      messageEl.innerHTML = "GATHERING PHASE";
       break;
     // vote
     case 2:
+      removeChoices();
       displayVoteChoices();
-      messageEl.innerHTML = "VOTING PHASE";
       break;
+  }
+  if (self.dead) {
+    q(".healthLabel").innerHTML = "You have died"; 
+    removeChoices();
   }
 }
 
@@ -174,7 +189,7 @@ const initSockets = () => {
 const GatheringPhase = () => {
   // temporary
   messageEl.innerHTML = "GATHERING PHASE"
-  displayPlayerChoices();
+  //displayPlayerChoices(); now handled by update
 }
 
 const initPage = () => {
