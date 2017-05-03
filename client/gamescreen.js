@@ -214,6 +214,7 @@ const displayLobby = () => {
     let y = 150;
     ctx.fillText("WAITING TO START...",x,y);
     ctx.fillText("IN LOBBY:",x,y + 35);
+    ctx.fillText("ROOM NAME: " + game.room,x,y + 70);
     for(let n = 0; n < names.length; ++n){
         ctx.fillText(names[n].name, x, y + ((n+2) * 35));
     }
