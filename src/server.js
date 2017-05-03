@@ -411,6 +411,28 @@ const testPlayer = (g, p) => {
 
 
 //
+// Check for the win conditions
+// All Things are eliminated
+// 
+const checkGameOver = (g) => {
+  const game = g;
+  const players = game.players;
+  
+  const thing = [];
+  const healthy = [];
+  
+  for (let p = 0; p < players.length; p += 1) {
+    if (players[p].task === t) {
+      if (players[p].thing === true) {
+        thing.push(p);
+      } else {
+        healthy.push(p);
+      }
+    }
+  } 
+}
+
+//
 // At the end of the voting round,
 // values are updated:
 // The generator loses a unit of power

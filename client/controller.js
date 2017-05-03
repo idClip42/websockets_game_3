@@ -16,13 +16,30 @@ let room = "";
 let prevPhase;
 let game;
 
+let hearts;
+
+// shorthand for print
 const log = (output) => {
   console.log(output);
 }
 
+// shorthand for query selector
 const q = (str) => {
   return document.querySelector(str);
 }
+
+// search an array for an object with a given property == a value
+const elemWithProperty = (arrayOfObjects, propertyName, match) => {
+  // loop
+  for (let i = 0; i < arrayOfObjects.length; i++) {
+    // match found
+    if (match === arrayOfObjects[i][propertyName]) {
+      return arrayOfObjects[i];
+    }
+  }
+  // no match found
+  return undefined;
+};
 
 const hideLogin = () => {
   loginContainer.style.display = "none";
@@ -80,10 +97,22 @@ const displayPlayerChoices = () => {
   createChoice("chems");
 }
 
+const showHealth = (data) => {
+  const self = elemWithProperty(data.players,'name',name);
+  for (var i=0; i<5; i++) {
+    if (i <= self.health) {
+      hearts[i].setAttribute("class", "full");
+    } else {
+      hearts[i].setAttribute("class", "");
+    }
+  }
+}
+
 const updateGame = (data) => {
   game = data;
   if (prevPhase === game.state) return;
   prevPhase = game.state;
+  showHealth(data);
   switch (game.state) {
     // lobby
     case 0:
@@ -91,6 +120,7 @@ const updateGame = (data) => {
       break;
     // gather
     case 1:
+      displayPlayerChoices();
       messageEl.innerHTML = "GATHERING PHASE";
       break;
     // vote
@@ -160,7 +190,7 @@ const initPage = () => {
     actionContainer = q(".action");
     voteContainer = q(".vote");
     submitBtn = q(".submit");
-    log(submitBtn);
+    hearts = document.querySelectorAll(".health > div");
     
     // events
     submitBtn.onclick = () => { joinGame(); };

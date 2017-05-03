@@ -35,8 +35,9 @@
           width: 6vh;
           height: 6vh;
           margin: 3vh;
-          border: 1vh solid black;
           text-align: center;
+          background-image: url("heartEmpty.png");
+          background-size: 100%;
         }
         .startGame {
           width: 10vh;
@@ -44,7 +45,8 @@
         }
         
         .full {
-          color: background-white;
+          /* override empty image */
+          background-image: url("heartFull.png") !important;
         }
         .HUD {
           font-size: 2em;
@@ -65,11 +67,11 @@
   <div class="HUD">
     <div>Health</div>
     <div class="health">
-      <div class="full">?</div>
-      <div class="full">?</div>
-      <div class="full">?</div>
-      <div class="full">?</div>
-      <div class="full">?</div>
+      <div class="full"></div>
+      <div class="full"></div>
+      <div class="full"></div>
+      <div class="full"></div>
+      <div class="full"></div>
     </div>
   </div>
   <div class="action container"></div>
