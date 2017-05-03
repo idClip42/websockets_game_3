@@ -331,7 +331,6 @@ io.sockets.on('connection', (socket) => {
     // This should probably be called by a player
     // Perhaps the first player to join, like in Jackbox games?
     // Or perhaps just any player
-
     console.log('game start requested');
 
     const game = roomGames[socket.gameRoom];  // socket.room may not be valid
@@ -438,6 +437,8 @@ const endVotingRound = (g, p) => {
 //
 const doneVoting = (pl, property) => {
   const players = pl;
+
+  //console.log(players);
 
   let allVoted = true;
   for (let p = 0; p < players.length; p += 1) {
@@ -649,6 +650,9 @@ const gameLoop = () => {
 
     const players = game.players;
 
+    //console.log(game.state);
+    //console.log(players);
+
     if (game.state === GAMESTATE.LOBBY) {
         // Probably do nothing here
     } else if (game.state === GAMESTATE.GATHERING) {
@@ -661,6 +665,7 @@ const gameLoop = () => {
     } else if (game.state === GAMESTATE.VOTING) {
         // TODO: Timer
       if (votingRound(game, players) === true) {
+        console.log("Done voting.");
         game.food *= (game.food < 0) ? -1 : 1;    // If we didn't use the remaining supplies,
         game.chems *= (game.chems < 0) ? -1 : 1;  // their counts were made negative to work with the loops
 
