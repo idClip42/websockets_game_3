@@ -311,7 +311,7 @@ io.sockets.on('connection', (socket) => {
   socket.on('action', (data) => {
     const game = roomGames[socket.gameRoom];
     const player = elemWithProperty(game.players,"name",data.name);
-    switch (data.action) {
+    switch (data.choice) {
       case 'food':
         player.task = TASKS.FOOD;
         game.food += 1;
@@ -410,6 +410,7 @@ const testPlayer = (g, p) => {
     game.message = `${player.name} is tested and is revealed to be The Thing! They are quickly killed`;
     player.health = 0; 
     player.dead = true;
+    checkGameOver(g);
   }
 };
 
@@ -505,25 +506,28 @@ const resetVotes = (pl, property) => {
 const voteCounting = (p) => {
   const players = p;
 
-  const voteArray = [players.length + 1];     // Creates array of votes
-  for (let n = 0; n < voteArray.length; n += 1) { voteArray[n] = 0; }
+  const voteArray = [];     // Creates array of votes
+  for (let n = 0; n < players.length; n += 1) { 
+    voteArray[n] = 0; 
+  }
 
   for (let n = 0; n < players.length; n += 1) {
-    const v = players[n].vote;
+    // get character index
+    const v = players.indexOf(elemWithProperty(players,"name",players[n].vote));
     if (v !== -1) {  // Ignores non-voters
       voteArray[v] += 1;  // Adds a vote to the given player
     }
   }
 
   let choice = -1;
-  let votes = -1;
+  let maxVotes = -1;
   let tie = false;
   for (let n = 0; n < voteArray.length; n += 1) {
-    if (voteArray[n] > votes) {
+    if (voteArray[n] > maxVotes) {
       choice = n;
-      votes = voteArray[n];
+      maxVotes = voteArray[n];
       tie = false;
-    } else if (voteArray[n] === votes) {
+    } else if (voteArray[n] === maxVotes) {
       tie = true;
     }
   }

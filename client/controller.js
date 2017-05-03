@@ -14,7 +14,7 @@ let name = "";
 let room = "";
 
 let prevPhase;
-let prevMsg;
+let prevMsg = "";
 let game;
 let self; // self reference refreshed every update;
 
@@ -63,7 +63,7 @@ const removeChoices = () => {
 const activateChoiceBtn = (btn, eventName) => { 
   const b = btn;
   b.onclick = () => {
-    socket.emit(eventName,{ "name": name, "action": btn.innerHTML });
+    socket.emit(eventName,{ "name": name, "choice": btn.innerHTML });
     removeChoices();
     if (debug) log(btn.innerHTML);
   }
@@ -114,9 +114,12 @@ const updateGame = (data) => {
   self = elemWithProperty(data.players,'name',name);
   if (prevMsg !== game.message) {
     messageEl.innerHTML = game.message;
-    prevMessage = game.message;
+    prevMsg = game.message;
     // if there is a new vote, display the new vote
-    if (game.state == 2) displayVoteChoices();
+    if (game.state === 2) {
+      removeChoices();
+      displayVoteChoices();
+    }
   }
   if (prevPhase === game.state) return;
   if (self.thing) { 
@@ -166,7 +169,7 @@ const initSockets = () => {
       if (data === "first") {
         const b = document.createElement("button");
         b.setAttribute("class", "startGame");
-        b.innerHTML = "START GAME"
+        b.innerHTML = "ALL PLAYERS READY"
         b.onclick = () => {
           socket.emit("startGame");
         }
