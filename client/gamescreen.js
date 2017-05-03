@@ -323,8 +323,13 @@ const updatePlayers = () => {
         let x = player.x * canvas.width;
         let y = player.y * canvas.height
 
-        drawCircle(x, y, 3, "white");
-        ctx.fillStyle = "white";
+        let color = "white";
+        // Shows who the thing is for debug purposes
+        if(game.players[n].thing === true)
+            color = "red";
+
+        drawCircle(x, y, 3, color);
+        ctx.fillStyle = color;
         ctx.textAlign = "left";
         ctx.textBaseline="top"; 
         ctx.font = "16px Arial";
