@@ -26,7 +26,7 @@ app.use(express.static('client'));
 const http = require('http').Server(app);
 const socketio = require('socket.io');
 const url = require('url');
-var path = require('path');
+const path = require('path');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -94,7 +94,7 @@ const GAME = Object.freeze({
   MIN_PLAYERS: 4,
   MAX_PLAYERS: 8,
   VOTING_TIME: 30,   // timer should give time for discussion
-  CHEMS_TO_TEST: 5,
+  CHEMS_TO_TEST: 3,
 });
 
 // An enumeration for the Gamestate
@@ -153,8 +153,8 @@ const PlayerCreator = (name, id) => {
 };
 
 
-const frameTime = 1000 / 60;          // The "framerate" - updates 60 times a second
-
+//const frameTime = 1000 / 60;          // The "framerate" - updates 60 times a second
+const frameTime = 500;          // The "framerate" - twice per second
 
 /*
 *
@@ -241,28 +241,28 @@ io.sockets.on('connection', (socket) => {
   socket.on('joinGame', (data) => {
     // data here should hold a room property and a player name property
 
-    if(!data) return;
+    if (!data) return;
 
     const game = roomGames[data.room];
-    //console.log(data.room);
+    // console.log(data.room);
 
     // Returns if no room by this name exists
-    if(!game) {
+    if (!game) {
       // send controller join failed
-      socket.emit("join failed", "room does not exist");
+      socket.emit('join failed', 'room does not exist');
       return;
     }
 
     // If the game is not in the Lobby, cannot add a player
     if (game.state !== GAMESTATE.LOBBY) {
       // send controller join failed
-      socket.emit("join failed", "game already started");
+      socket.emit('join failed', 'game already started');
       return;
     }
     // If the game has maxed out it's players, cannot add any more
-    if (game.players.length >= GAME.MAX_PLAYERS){
+    if (game.players.length >= GAME.MAX_PLAYERS) {
       // send controller join failed
-      socket.emit("join failed", "too many players are in this lobby");
+      socket.emit('join failed', 'too many players are in this lobby');
       return;
     }
 
@@ -272,16 +272,16 @@ io.sockets.on('connection', (socket) => {
 
     socket.join(data.room);
     socket.gameRoom = data.room;
-    
+
     // only add player to player list if this is the first time s/he joined.
-    if (elemWithProperty(game.players,"name",data.name) === undefined) {    
+    if (elemWithProperty(game.players, 'name', data.name) === undefined) {
       const player = PlayerCreator(data.name, socket.id);
       game.players.push(player);
     }
 
     // send controller join succeeded
-    const first = (game.players.length === 1 ? "first" : undefined);
-    socket.emit("join succeeded",first);
+    const first = (game.players.length === 1 ? 'first' : undefined);
+    socket.emit('join succeeded', first);
     console.log(`${data.name} joined room ${data.room}`);
     emitUpdate(data.room);
     // For the same reasons as above, this is probably not needed
@@ -293,29 +293,68 @@ io.sockets.on('connection', (socket) => {
     // If there are no rooms with this name, makes one
     if (!roomGames[name]) { roomGames[name] = GameCreator(name); }
     socket.join(name);
-    
+
     console.log(`Room ${name} created`);
-    
+
     emitUpdate(name);
     // For the same reasons as above, this is probably not needed
+  });
+  
+  // player casts a vote
+  socket.on('vote', (data) => {
+    const game = roomGames[socket.gameRoom];
+    const player = elemWithProperty(game.players,"name",data.name);
+    player.vote = data.choice;
+  });
+
+  // player decides on an action
+  socket.on('action', (data) => {
+    const game = roomGames[socket.gameRoom];
+    const player = elemWithProperty(game.players,"name",data.name);
+    switch (data.action) {
+      case 'food':
+        player.task = TASKS.FOOD;
+        game.food += 1;
+        break;
+      case 'chems':
+        player.task = TASKS.CHEM;
+        game.chems += 1;
+        break;
+      case 'generator':
+        player.task = TASKS.POWER;
+        game.generator += 1;
+        break;
+    }
   });
 
   socket.on('startGame', () => {
     // This should probably be called by a player
     // Perhaps the first player to join, like in Jackbox games?
     // Or perhaps just any player
-    
-    console.log("game start requested");
-    
+
+    console.log('game start requested');
+
     const game = roomGames[socket.gameRoom];  // socket.room may not be valid
 
     // If not in the Lobby, the game has already started
-    if (game.state !== GAMESTATE.LOBBY) return;
-    // Game can't start without enough players
-    //if (game.players.length < GAME.MIN_PLAYERS) return;
-    game.state = GAMESTATE.GATHERING;
+    if (game.state !== GAMESTATE.LOBBY) {
+      socket.emit('start failed', 'game is already started');
+      return;
+    }
+    // Game can't start without enough players (REMOVED WHILE DEBUGGING FOR EASE OF TESTING)
+    /* if (game.players.length < GAME.MIN_PLAYERS) {
+      socket.emit("start failed", `You need at least ${GAME.MIN_PLAYERS} players in the lobby to start`);
+      return;
+    }*/
     
-    console.log("game started");
+    // Tag, you're it! Select one player to be the thing
+    game.players[Math.floor(game.players.length * Math.random())].thing = true;
+    
+    game.state = GAMESTATE.GATHERING;
+    console.log(`game state = ${roomGames[socket.gameRoom].state}`);
+
+    console.log('game started');
+    socket.emit('start succeeded');
 
     emitUpdate(socket.gameRoom);  // socket.room may not be valid
     // For the same reasons as above, this is probably not needed
@@ -401,7 +440,7 @@ const doneVoting = (pl, property) => {
   const players = pl;
 
   let allVoted = true;
-  for (let p = 0; p < players; p += 1) {
+  for (let p = 0; p < players.length; p += 1) {
     if (players[p][property] === -1 && players[p].disabled === false) { allVoted = false; }
   }
   return allVoted;
@@ -413,7 +452,7 @@ const doneVoting = (pl, property) => {
 const resetVotes = (pl, property) => {
   const players = pl;
 
-  for (let p = 0; p < players; p += 1) { players[p][property] = -1; }
+  for (let p = 0; p < players.length; p += 1) { players[p][property] = -1; }
 };
 
 
@@ -475,7 +514,7 @@ const votingRound = (g, p) => {
   const game = g;
   const players = p;
 
-
+  let done = true;
   // This will have a timer that counts down from GAME.VOTING_TIME
 
   // FOOD PHASE
@@ -492,11 +531,15 @@ const votingRound = (g, p) => {
       } else {
         players[choice].health = GAME.MAX_HEALTH;
         game.food -= 1;
-        game.message = `${players[choice].name}is given the food.`;
+        game.message = `${players[choice].name} is given the food.`;
       }
       resetVotes(players, 'vote');
+    } 
+    else {
+      done = false;
     }
-  } else if (game.chems > GAME.CHEMS_TO_TEST) {
+  } 
+  if (game.chems > GAME.CHEMS_TO_TEST) {
     // CHEM PHASE
 
     game.message = `Vote for who gets tested. There are enough chems for ${Math.floor(game.chems / GAME.CHEMS_TO_TEST)} tests.`;
@@ -515,8 +558,11 @@ const votingRound = (g, p) => {
       }
       resetVotes(players, 'vote');
     }
-  } else return true;
-  return false;
+    else {
+      done = false;
+    }
+  }
+  return done;
 };
 
 
@@ -542,7 +588,7 @@ const votingRound = (g, p) => {
 
 
 //
-// This looks at each of the task areas 
+// This looks at each of the task areas
 //         (not to be confused with socket "rooms")
 // (food, chems, generator)
 // Looks at who's in each area
@@ -596,6 +642,11 @@ const gameLoop = () => {
   const keys = Object.keys(roomGames);
   for (let n = 0; n < keys.length; n += 1) {
     const game = roomGames[keys[n]];
+
+    // cheap check for object property that is not a room
+    // (Object.hasOwnProperty is not allowed in Airbnb)
+    //if (!game.state) continue;
+
     const players = game.players;
 
     if (game.state === GAMESTATE.LOBBY) {
@@ -603,7 +654,7 @@ const gameLoop = () => {
     } else if (game.state === GAMESTATE.GATHERING) {
         // TODO: Timer
       if (doneVoting(players, 'task') === true) {
-        game.state = GAME.VOTING;
+        game.state = GAMESTATE.VOTING;
         playersInAreas(game, players);
         resetVotes(players, 'task');
       }
@@ -615,7 +666,7 @@ const gameLoop = () => {
 
         endVotingRound(game, players);
 
-        game.state = GAME.GATHERING;
+        game.state = GAMESTATE.GATHERING;
       }
     } else if (game.state === GAMESTATE.INFO) {
         // This is here in case we need it

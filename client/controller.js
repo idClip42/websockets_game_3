@@ -10,6 +10,12 @@ let voteContainer;
 let submitBtn;
 let debug = true;
 
+let name = "";
+let room = "";
+
+let prevPhase;
+let game;
+
 const log = (output) => {
   console.log(output);
 }
@@ -28,17 +34,18 @@ const joinGame = () => {
 }
 
 // choice made
-const resolveChoice = () => {
+const removeChoices = () => {
   // clear button continer
   actionContainer.innerHTML = "";
+  voteContainer.innerHTML = "";
 }
 
 // create a click listener for a choice button 
-const activateChoiceBtn = (btn) => { 
+const activateChoiceBtn = (btn, eventName) => { 
   const b = btn;
   b.onclick = () => {
-    socket.emit("choice",btn.innerHTML);
-    resolveChoice();
+    socket.emit(eventName,{ "name": name, "action": btn.innerHTML });
+    removeChoices();
     if (debug) log(btn.innerHTML);
   }
   return b;
@@ -48,10 +55,23 @@ const activateChoiceBtn = (btn) => {
 const createChoice = (choiceString) => {
   const btn = document.createElement("button");
   btn.innerHTML = choiceString;
-  activateChoiceBtn(btn);
+  activateChoiceBtn(btn, 'action');
   actionContainer.appendChild(btn);
 }
 
+// create a new vote button
+const createVote = (choiceString) => {
+  const btn = document.createElement("button");
+  btn.innerHTML = choiceString;
+  activateChoiceBtn(btn, 'vote');
+  voteContainer.appendChild(btn);
+}
+
+const displayVoteChoices = () => {
+  for (let i=0; i<game.players.length; i++) {
+    createVote(game.players[i].name);
+  }
+}
 
 // player choices on a given turn
 const displayPlayerChoices = () => {
@@ -61,7 +81,24 @@ const displayPlayerChoices = () => {
 }
 
 const updateGame = (data) => {
-
+  game = data;
+  if (prevPhase === game.state) return;
+  prevPhase = game.state;
+  switch (game.state) {
+    // lobby
+    case 0:
+      // welcome to the arctic research facility
+      break;
+    // gather
+    case 1:
+      messageEl.innerHTML = "GATHERING PHASE";
+      break;
+    // vote
+    case 2:
+      displayVoteChoices();
+      messageEl.innerHTML = "VOTING PHASE";
+      break;
+  }
 }
 
 const initSockets = () => {
@@ -76,10 +113,14 @@ const initSockets = () => {
     });
     
     socket.on("join succeeded", (data) => {
+      // set properties
+      name = nameEl.value;
+      room = roomEl.value;
+      
       // first player gets start button
       if (data === "first") {
         const b = document.createElement("button");
-        b.class = "startGame";
+        b.setAttribute("class", "startGame");
         b.innerHTML = "START GAME"
         b.onclick = () => {
           socket.emit("startGame");
@@ -88,6 +129,15 @@ const initSockets = () => {
       }
       hideLogin();
       messageEl.innerHTML = "WAITING FOR PLAYERS"
+    });
+    
+    socket.on("start failed", (data) => {
+      alert(data);
+    });
+    
+    socket.on("start succeeded", (data) => {
+      q(".startGame").remove();
+      GatheringPhase();
     });
 };
 

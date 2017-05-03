@@ -4,6 +4,8 @@ let ctx;
 let canvas;
 let socket;
 
+let prevState;
+
 // 
 // The rooms that the player can
 // choose to go in for their tasks
@@ -75,7 +77,7 @@ let game = {
     ],
     food: 3,
     chems: 5,
-    power: 9,
+    generator: 9,
     message: "this is a demo message",
     */
 };
@@ -112,7 +114,7 @@ const playerDraws = [
 ];
 
 const updateGameObject = (data) => {
-
+    
     // An update means we are in a game,
     // which means we don't need to enter a game name
     //e.target.hidden = true;
@@ -122,19 +124,11 @@ const updateGameObject = (data) => {
 
     // Goes through each of the players
     for(let n = 0; n < data.players.length; ++n){
-
         // If there is no game, stop this loop
         if(!game) break;
-
-        // Determines room by checking task
-        // If task index not in room list
-        // set it to the index of the main room
-        let task = data.players[n].task;
-        if(!rooms[task])
-            task = 3
-
+    
         // If this player is new, add them to the playerDraws
-        if(!game.players || !game.players[n])
+        if(!game.players || !game.players[n]) {
             playerDraws[n] = {
                 name: data.players[n].name,
                 x: 0,
@@ -142,8 +136,18 @@ const updateGameObject = (data) => {
                 tx: 0,
                 ty: 0
             };
-        // Update the playerdraws with their location
-        setPlayerTarget(playerDraws[n], rooms[task]);
+        }        
+        // only update once per action   
+        if (data.state !== prevState) {
+          // Determines room by checking task
+          // If task index not in room list
+          // set it to the index of the main room
+          let task = data.players[n].task;
+          if(!rooms[task]) task = 3;
+        
+          // Update the playerdraws with their location
+          setPlayerTarget(playerDraws[n], rooms[task]);
+        } 
     }
     
     // Updates all the game data
@@ -222,7 +226,7 @@ const update = () => {
     ctx.fillStyle = "black";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-	drawCornerFrames();
+	  drawCornerFrames();
 
     drawMessage();
 
@@ -242,7 +246,7 @@ const update = () => {
 
     }
 
-
+    prevState = game.state;
 };
 
 const drawCornerFrames = () => {
@@ -348,7 +352,7 @@ const drawStats = () => {
     for(let n = 0; n < game.chems; ++n)
         ctx.fillRect(x + length + blockOffset*n, y + height, blockWidth, blockWidth);
     ctx.fillText("Power:", x, y + height * 2);
-    for(let n = 0; n < game.power; ++n)
+    for(let n = 0; n < game.generator; ++n)
         ctx.fillRect(x + length + blockOffset*n, y + height*2, blockWidth, blockWidth);
 
 };
