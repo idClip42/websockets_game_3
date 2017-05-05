@@ -271,7 +271,7 @@ const updatePlayers = () => {
 
         let color = "white";
         // Shows who the thing is for debug purposes
-        //if(game.players[n].thing === true) color = "red";
+        if(game.players[n].thing === true) color = "red";
 
         drawCircle(x, y, 3, color);
         ctx.fillStyle = color;
