@@ -152,7 +152,7 @@ const displayLobby = () => {
     let x = canvas.width/2;
     let y = 150;
     ctx.fillText("WAITING TO START...",x,y);
-    ctx.fillText("GO TO: salty-tor-19094.herokuapp.com/controller",x,y + 35);
+    ctx.fillText("GO TO: http://bit.do/the-thing",x,y + 35);
     ctx.fillText("ROOM NAME: " + game.room,x,y + 70);
     ctx.fillText("IN LOBBY:",x,y + 140);
     for(let n = 0; n < names.length; ++n){
@@ -271,7 +271,7 @@ const updatePlayers = () => {
 
         let color = "white";
         // Shows who the thing is for debug purposes
-        if(game.players[n].thing === true) color = "red";
+        //if(game.players[n].thing === true) color = "red";
 
         drawCircle(x, y, 3, color);
         ctx.fillStyle = color;
