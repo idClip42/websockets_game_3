@@ -7,6 +7,7 @@ let messageEl;
 let loginContainer;
 let actionContainer;
 let voteContainer;
+let healthContainer;
 let submitBtn;
 let debug = true;
 
@@ -197,6 +198,7 @@ const initSockets = () => {
     });
     
     socket.on("start succeeded", (data) => {
+      healthContainer.style.display = "block";
       q(".startGame").remove();
       GatheringPhase();
     });
@@ -219,9 +221,12 @@ const initPage = () => {
     messageEl = q(".message");
     loginContainer = q(".login");
     actionContainer = q(".action");
+    healthContainer = q(".HUD");
     voteContainer = q(".vote");
     submitBtn = q(".submit");
     hearts = document.querySelectorAll(".health > div");
+    
+    healthContainer.style.display = "none";
     
     // events
     //submitBtn.onclick = (e) => { 

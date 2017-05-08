@@ -10,16 +10,15 @@
     <title>The Thing: PARTY!</title>
 </head>
 <body>
-  <h1 class="message">Welcome to the Arctic Research Facility</h1>
+  <div class="controller">
+  <p class="message welcome">Welcome to the Arctic Research Facility</p>
   <form class="login container" id="loginContainer">
-    <h2>Name</h2>
-    <input class="name"></input>
-    <h2>Room</h2>
-    <input class="room"></input>
+    <p class="inputLabel">Name: </p><input class="name"></input><br>
+    <p class="inputLabel">Room: </p><input class="room"></input><br><br>
     <input type = "submit" class="submit" value="JOIN">
   </form>
   <div class="HUD">
-    <div class="healthLabel">Eat to restore health</div>
+    <p class="healthLabel">Eat to restore health</p>
     <div class="health">
       <div class="full"></div>
       <div class="full"></div>
@@ -30,5 +29,7 @@
   </div>
   <div class="action container"></div>
   <div class="vote container"></div>
+  </div>
+  <div class="crtEffect"></div>
 </body>
 </html>
