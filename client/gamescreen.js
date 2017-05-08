@@ -7,10 +7,15 @@ let socket;
 let prevState;
 
 const VALS = {
-    COLOR: "white",
-    GLOW: "white",
+    COLOR: "#88AAFF",
+    GLOW: "#88AAFF",
+    BLUR: 10,
     FONT: "VT323"
 };
+
+let images = {
+    crt: undefined
+}
 
 // 
 // The rooms that the player can
@@ -124,6 +129,8 @@ const initPage = () => {
         e.preventDefault();
     };
     document.querySelector("#roomName").onsubmit = submitRoomName;
+
+    images.crt = document.querySelector("#crtImage");
 };
 
 const initCanvas = () => {
@@ -132,10 +139,7 @@ const initCanvas = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    ctx.shadowColor = VALS.GLOW;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 10;
+    setGlow();
 };
 
 const init = () => {
@@ -156,10 +160,7 @@ const displayMakeRoom = () => {
 
 const displayLobby = () => {
 
-    ctx.shadowColor = VALS.GLOW;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 10;
+    setGlow();
 
     let names = game.players;
     ctx.fillStyle = VALS.COLOR;
@@ -189,10 +190,12 @@ const update = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    ctx.fillStyle = "black";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    //ctx.fillStyle = "black";
+    //ctx.fillRect(0,0,canvas.width,canvas.height);
+    //console.log(images.crt);
+    ctx.drawImage(images.crt,0,0,canvas.width,canvas.height)
 
-	  drawCornerFrames();
+	//drawCornerFrames();
 
     drawMessage();
 
@@ -221,6 +224,8 @@ const drawCornerFrames = () => {
     const length = 100;
     const thickness = 3;
 
+    setGlow();
+
     ctx.fillRect(offset, offset, thickness, length);
     ctx.fillRect(offset, offset, length, thickness);
 
@@ -235,6 +240,9 @@ const drawCornerFrames = () => {
 };
 
 const drawRooms = () => {
+
+    setGlow();
+
     const lineWidth = 3;
     ctx.strokeStyle = VALS.COLOR;
     ctx.fillStyle = VALS.COLOR;
@@ -290,6 +298,8 @@ const updatePlayers = () => {
         // Shows who the thing is for debug purposes
         //if(game.players[n].thing === true) color = "red";
 
+        setGlow();
+
         drawCircle(x, y, 3, color);
         ctx.fillStyle = color;
         ctx.textAlign = "left";
@@ -300,6 +310,9 @@ const updatePlayers = () => {
 };
 
 const drawStats = () => {
+
+    setGlow();
+
     ctx.fillStyle = VALS.COLOR;
     ctx.textAlign = "left";
     ctx.textBaseline="middle"; 
@@ -334,6 +347,8 @@ const drawMessage = () => {
     let x = 0.5 * canvas.width;
     let y = 0.1 * canvas.height;
 
+    setGlow();
+
     ctx.fillStyle = VALS.COLOR;
     ctx.textAlign = "center";
     ctx.textBaseline="middle"; 
@@ -343,12 +358,22 @@ const drawMessage = () => {
 };
 
 const drawCircle = (x,y,r,color) => {
+
+    setGlow();
+
     ctx.save();
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2*Math.PI);
     ctx.fill();
     ctx.restore();
+};
+
+const setGlow = () => {
+    ctx.shadowColor = VALS.GLOW;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = VALS.BLUR;
 };
 
 const submitRoomName = (e) => {
