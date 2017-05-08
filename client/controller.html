@@ -1,56 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
 	  <script src="/socket.io/socket.io.js"></script>
     <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
     <script type="text/babel" src="controller.js"></script> 
     <!--<script type="text/javascript" src="controller.js"></script> -->
-    <style>
-        html, body {
-            width:  100%;
-            height: 100%;
-            margin: 0px;
-        }
-        .container {
-          border: solid 1px black;
-          max-width: 75vh;
-        }
-        .container > button {
-          width: 90%;
-          margin: 4%;
-          height: 10vh;
-          font-size: 3em;
-        }
-        .container > input {
-          width: 90%;
-          margin: 2%;
-          height: 10vh;
-          font-size: 3em;
-        }
-        .health {
-          padding: 1%;
-        }
-        .health > div {
-          display: inline-block;
-          width: 6vh;
-          height: 6vh;
-          text-align: center;
-          background-image: url("heartEmpty.png");
-          background-size: 100%;
-        }
-        .startGame {
-          width: 10vh;
-          height: 5vh;
-        }
-        
-        .full {
-          /* override empty image */
-          background-image: url("heartFull.png") !important;
-        }
-        .HUD {
-          font-size: 2em;
-        }
-    </style>
 
     <title>The Thing: PARTY!</title>
 </head>
