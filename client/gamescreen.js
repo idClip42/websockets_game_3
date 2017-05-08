@@ -6,6 +6,12 @@ let socket;
 
 let prevState;
 
+const VALS = {
+    COLOR: "white",
+    GLOW: "white",
+    FONT: "VT323"
+};
+
 // 
 // The rooms that the player can
 // choose to go in for their tasks
@@ -125,6 +131,11 @@ const initCanvas = () => {
     ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
+    ctx.shadowColor = VALS.GLOW;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 10;
 };
 
 const init = () => {
@@ -144,11 +155,17 @@ const displayMakeRoom = () => {
 };
 
 const displayLobby = () => {
+
+    ctx.shadowColor = VALS.GLOW;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 10;
+
     let names = game.players;
-    ctx.fillStyle = "white";
+    ctx.fillStyle = VALS.COLOR;
     ctx.textAlign = "center";
     ctx.textBaseline="top"; 
-    ctx.font = "30px Arial";
+    ctx.font = "30px " + VALS.FONT;
     let x = canvas.width/2;
     let y = 150;
     ctx.fillText("WAITING TO START...",x,y);
@@ -199,7 +216,7 @@ const update = () => {
 };
 
 const drawCornerFrames = () => {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = VALS.COLOR;
     const offset = 30;
     const length = 100;
     const thickness = 3;
@@ -219,11 +236,11 @@ const drawCornerFrames = () => {
 
 const drawRooms = () => {
     const lineWidth = 3;
-    ctx.strokeStyle = "white";
-    ctx.fillStyle = "white";
+    ctx.strokeStyle = VALS.COLOR;
+    ctx.fillStyle = VALS.COLOR;
     ctx.textAlign = "left";
     ctx.textBaseline="top"; 
-    ctx.font = "20px Arial";
+    ctx.font = "20px  " + VALS.FONT;
 
     for(let n = 0; n < rooms.length; ++n){
 
@@ -269,7 +286,7 @@ const updatePlayers = () => {
         let x = player.x * canvas.width;
         let y = player.y * canvas.height
 
-        let color = "white";
+        let color = VALS.COLOR;
         // Shows who the thing is for debug purposes
         //if(game.players[n].thing === true) color = "red";
 
@@ -277,16 +294,16 @@ const updatePlayers = () => {
         ctx.fillStyle = color;
         ctx.textAlign = "left";
         ctx.textBaseline="top"; 
-        ctx.font = "16px Arial";
+        ctx.font = "16px " + VALS.FONT;
         ctx.fillText(player.name, x + 5, y + 5);
     }
 };
 
 const drawStats = () => {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = VALS.COLOR;
     ctx.textAlign = "left";
     ctx.textBaseline="middle"; 
-    ctx.font = "24px Arial";
+    ctx.font = "24px " + VALS.FONT;
 
     const x = 0.6 * canvas.width;
     const y = 0.7 * canvas.height;
@@ -317,10 +334,10 @@ const drawMessage = () => {
     let x = 0.5 * canvas.width;
     let y = 0.1 * canvas.height;
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = VALS.COLOR;
     ctx.textAlign = "center";
     ctx.textBaseline="middle"; 
-    ctx.font = "24px Arial";
+    ctx.font = "24px " + VALS.FONT;
 
     ctx.fillText(game.message, x, y);
 };

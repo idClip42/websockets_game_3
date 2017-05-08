@@ -10,6 +10,7 @@ html, body {
     position: absolute;
     left: 50%;
     top: 50%;
+    font-family: 'VT323', monospace;
 }
 .container {
   border: solid 1px black;
@@ -20,12 +21,22 @@ html, body {
   margin: 4%;
   height: 10vh;
   font-size: 3em;
+  font-family: 'VT323', monospace;
 }
 .container > input {
   width: 90%;
   margin: 2%;
   height: 10vh;
   font-size: 3em;
+  font-family: 'VT323', monospace;
+}
+.container > input[type=submit] {
+  width: 90%;
+  margin: 4%;
+  height: 10vh;
+  font-size: 3em;
+  font-family: 'VT323', monospace;
+  border-style: solid;
 }
 .health {
   padding: 1%;

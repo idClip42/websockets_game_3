@@ -224,7 +224,12 @@ const initPage = () => {
     hearts = document.querySelectorAll(".health > div");
     
     // events
-    submitBtn.onclick = () => { joinGame(); };
+    //submitBtn.onclick = (e) => { 
+    document.querySelector("#loginContainer").onsubmit = (e) => {
+      e.preventDefault();
+      joinGame(); 
+      return false;
+    };
 };
 
 const init = () => {
