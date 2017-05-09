@@ -65,6 +65,7 @@ const rooms = [
 //
 let game = {
     message: "Enter room name",
+    onboardMessage: "",
 };
 
 //
@@ -198,6 +199,7 @@ const update = () => {
 	//drawCornerFrames();
 
     drawMessage();
+    drawOnboardingMessage();
 
     // DRAW GAME MESSAGE
 
@@ -356,6 +358,36 @@ const drawMessage = () => {
 
     ctx.fillText(game.message, x, y);
 };
+
+const drawOnboardingMessage = () => {
+    const msg = game.onboardMessage;
+    const charsPerLine = 30;
+    const x = 0.7 * canvas.width;
+    const y = 0.4 * canvas.height;
+    const height = 28;
+
+    setGlow();
+
+    ctx.fillStyle = VALS.COLOR;
+    ctx.textAlign = "left";
+    ctx.textBaseline="middle"; 
+    ctx.font = "20px " + VALS.FONT;
+
+    const words = msg.split(" ");
+    let lines = [];
+    lines.push("");
+    for(let w = 0; w < words.length; ++w){
+        if(words[w] == "RETURN")
+            lines.push("");
+        else
+            lines[lines.length - 1] += words[w] + " ";
+        if(ctx.measureText(lines[lines.length - 1]).width > (0.25 * canvas.width))
+            lines.push("");
+    }
+
+    for(let l = 0; l < lines.length; ++l)
+        ctx.fillText(lines[l], x, y + l * height);
+}
 
 const drawCircle = (x,y,r,color) => {
 

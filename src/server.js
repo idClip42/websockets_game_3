@@ -133,6 +133,14 @@ const GameCreator = (room) => {
 
   game.connections = 0;               // How many clients have connected to the game
 
+  //game.onboarding = {                 // Which game states have been explained to the player
+  //  lobby: false,
+  //  gathering: false,
+  //  voting: false,
+  //  powerOut: false
+  //};
+  game.onboardMessage = "";           // The message with tutorial info
+
   return Object.seal(game);
 };
 
@@ -142,7 +150,7 @@ const PlayerCreator = (name, id) => {
   const player = {};
 
   player.name = name;                                             // The player's name
-  player.health = Math.round(Math.random() * GAME.MAX_HEALTH);    // How much health they have (initialized randomly)
+  player.health = Math.round(2 + Math.random() * (GAME.MAX_HEALTH - 2));    // How much health they have (initialized randomly)
   player.task = TASKS.NOTHING;                                    // The player's selected task for the Gathering game state
   player.thing = false;                                           // Whether this player is The Thing
   player.socketID = id;                                           // The player client's socket id
@@ -258,12 +266,19 @@ io.sockets.on('connection', (socket) => {
       return;
     }
 
-    // If the game is not in the Lobby, cannot add a player
-    if (game.state !== GAMESTATE.LOBBY) {
-      // send controller join failed
+    let sameName = elemWithProperty(game.players,"name",data.name);
+
+    if(sameName && sameName.disabled == false){
+      socket.emit('join failed', 'player name already in use');
+      return;
+    }
+
+    // If the game is not in the Lobby (and player is not rejoining), cannot add a player
+    if (game.state !== GAMESTATE.LOBBY && (!sameName || sameName.disabled == false)) {
       socket.emit('join failed', 'game already started');
       return;
     }
+
     // If the game has maxed out it's players, cannot add any more
     if (game.players.length >= GAME.MAX_PLAYERS) {
       // send controller join failed
@@ -293,6 +308,7 @@ io.sockets.on('connection', (socket) => {
       //}
       let p = elemWithProperty(game.players,"name",data.name);
       if(p && p.disabled === true) p.disabled = false;
+      thisPlayerIndex = game.players.indexOf(p);
     }
 
     game.connections += 1;
@@ -347,6 +363,7 @@ io.sockets.on('connection', (socket) => {
         break;
       case 'generator':
         player.task = TASKS.POWER;
+        if(game.generator <= 0) game.onboarding.powerOut = true;
         game.generator += 1;
         if(game.generator >= GAME.MAX_POWER) game.generator = GAME.MAX_POWER;
         break;
@@ -775,18 +792,40 @@ const gameLoop = () => {
 
     if (game.state === GAMESTATE.LOBBY) {
         // Probably do nothing here
+        game.onboardMessage = "One among you is not human. RETURN RETURN Welcome to The Thing: PARTY RETURN Most of you will play as humans, trying to survive. RETURN One of you is THE THING. Your goal is to infect all the other humans and make them THE THING.";
     } else if (game.state === GAMESTATE.GATHERING) {
-        // TODO: Timer
+
+        //if(game.onboarding.gathering == false)
+          game.onboardMessage = "Gathering: RETURN - Get food for health RETURN - Get " + GAME.CHEMS_TO_TEST + " chems to prepare a blood test RETURN - Add fuel to the generator RETURN - Beware of being alone in a room with someone who is The Thing - they will infect you.";
+        //else if(game.onboarding.powerOut == false && game.generator <= 0)
+        if(game.generator <= 0)
+          game.onboardMessage = "The power is out, and anyone who is The Thing can infect anyone in a room with them under the cover of darkness.";
+        //else
+        //  game.onboardMessage = "";
+
+        for(let p = 0; p < game.players.length; p+=1){
+          if(game.players[p].health <= 0)
+            game.onboardMessage = "One of you is out of health - you are now extremely vulnerable to The Thing, no matter who else is around.";
+        }
+        
+
       if (doneVoting(players, 'task') === true) {
         game.state = GAMESTATE.VOTING;
         playersInAreas(game, players);
+        //game.onboarding.gathering = true;
       }
     } else if (game.state === GAMESTATE.VOTING) {
-        // TODO: Timer
+
+        //if(game.onboarding.voting == false)
+          game.onboardMessage = "Vote on who gets each individual piece of health-restoring food, and if a blood test is available, vote on who will be tested.";
+        //else
+        //  game.onboardMessage = "";
+
       if (votingRound(game, players) === true) {
         console.log("Done voting.");
         game.food *= (game.food < 0) ? -1 : 1;    // If we didn't use the remaining supplies,
         game.chems *= (game.chems < 0) ? -1 : 1;  // their counts were made negative to work with the loops
+        //game.onboarding.voting = true;
 
         endVotingRound(game, players);
 
