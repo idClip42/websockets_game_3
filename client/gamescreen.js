@@ -14,7 +14,8 @@ const VALS = {
 };
 
 let images = {
-    crt: undefined
+    crt: undefined,
+    map: undefined,
 }
 
 // 
@@ -23,6 +24,7 @@ let images = {
 // Hold information for
 // visualization
 //
+/*
 const rooms = [
     {
         name: "Food Storage",
@@ -54,6 +56,41 @@ const rooms = [
         y: 0.35,
         width: 0.3,
         height: 0.3
+        // CORRESPONDS TO MAIN TASK 3, NOTHING TASK -1
+    },
+];
+*/
+const rooms = [
+    {
+        name: "Food Storage",
+        x: 0.47,
+        y: 0.65,
+        width: 0.06,
+        height: 0.12
+        // CORRESPONDS TO FOOD TASK 0
+    },
+    {
+        name: "Chem Storage",
+        x: 0.14,
+        y: 0.79,
+        width: 0.08,
+        height: 0.10
+        // CORRESPONDS TO CHEM TASK 1
+    },
+    {
+        name: "Generator",
+        x: 0.31,
+        y: 0.64,
+        width: 0.07,
+        height: 0.02
+        //CORRESPONDS TO POWER TASK 2
+    },
+    {
+        name: "Main Lab",
+        x: 0.28,
+        y: 0.29,
+        width: 0.12,
+        height: 0.1
         // CORRESPONDS TO MAIN TASK 3, NOTHING TASK -1
     },
 ];
@@ -132,6 +169,7 @@ const initPage = () => {
     document.querySelector("#roomName").onsubmit = submitRoomName;
 
     images.crt = document.querySelector("#crtImage");
+    images.map = document.querySelector("#mapImage");
 };
 
 const initCanvas = () => {
@@ -196,6 +234,14 @@ const update = () => {
     //console.log(images.crt);
     ctx.drawImage(images.crt,0,0,canvas.width,canvas.height)
 
+    const drawMapImg = () => {
+        ctx.drawImage(images.map, 
+            canvas.width * 0.1,
+            canvas.height * 0.15,
+            canvas.width * 0.5, 
+            canvas.height * 0.8);
+    };
+
 	//drawCornerFrames();
 
     drawMessage();
@@ -208,8 +254,10 @@ const update = () => {
     } else if(game.state == game.GAMESTATE.LOBBY){
         displayLobby();
     } else if(game.state == game.GAMESTATE.GATHERING){
+        drawMapImg();
         displayMap();
     } else if(game.state == game.GAMESTATE.VOTING){
+        drawMapImg();
         displayMap();
     } else if(game.state == game.GAMESTATE.INFO){
         
@@ -257,6 +305,8 @@ const drawRooms = () => {
         let r = rooms[n];
         let x = r.x * canvas.width;
         let y = r.y * canvas.height;
+
+        /*
         let w = r.width * canvas.width;
         let h = r.height * canvas.height;
         ctx.save();
@@ -268,8 +318,9 @@ const drawRooms = () => {
         ctx.lineTo(x, y);
         ctx.stroke();
         ctx.restore();
+        //*/
 
-        ctx.fillText(r.name, x + 5, y + 5);
+        ctx.fillText(r.name, x + 5, y - 25);
     }
 };
 
