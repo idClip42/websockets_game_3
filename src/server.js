@@ -396,7 +396,7 @@ io.sockets.on('connection', (socket) => {
     console.log(`game state = ${roomGames[socket.gameRoom].state}`);
 
     console.log('game started');
-    socket.emit('start succeeded');
+    io.to(socket.gameRoom).emit('start succeeded');
 
     emitUpdate(socket.gameRoom);  // socket.room may not be valid
     // For the same reasons as above, this is probably not needed

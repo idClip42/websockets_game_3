@@ -125,6 +125,7 @@ const updateGame = (data) => {
   game = data;
   self = elemWithProperty(data.players,'name',name);
   if (prevMsg !== game.message) {
+    healthContainer.style.display = "block";
     messageEl.innerHTML = game.message;
     prevMsg = game.message;
     // if there is a new vote, display the new vote
