@@ -2,40 +2,13 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" type="text/css" href="style.css">
-	<script src="/socket.io/socket.io.js"></script>
-    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
-    <script type="text/babel" >
-        "use strict";
-
-    	const init = () => {
-    		const socket = io.connect();
-
-            socket.on("update", (data) => {
-                
-            });
-
-    		update();
-    	};
-
-    	window.onload = init;
-
-    	const update = () => {
-    		//requestAnimationFrame(update);
-
-            //ctx.fillStyle = "black";
-            //ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    		
-    	};
-    </script>
-
     <title>Home Page</title>
 </head>
 <body>
   <!-- example image served automatically by express! -->
-  <img src="image.jpg"/ style="height: 50vh">
-  <p>Welcome to The Thing... a mafia-like party game of betrayal and paranoia! Fun for the whole family!</p>
-  <p>To get started, go to the <a href="game">game screen</a> using your computer. Create a room name using the text field provided.</p>
-  <p>Then use your phone to go to the <a href="controller">controller screen</a> and pick a username. </p>
+  <img src="logoAnim.gif"/>
+  <p>Welcome to The Thing: PARTY... a mafia-like party game of betrayal and paranoia! Fun for the whole family!</p>
+  <p>To get started, go to the <a href="game">GAME SCREEN</a> using your computer. Create a room name using the text field provided.</p>
+  <p>Then use your phone to go to the <a href="controller">CONTROLLER</a> and pick a username. </p>
 </body>
 </html>

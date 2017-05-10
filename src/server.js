@@ -817,7 +817,7 @@ const gameLoop = () => {
     } else if (game.state === GAMESTATE.VOTING) {
 
         //if(game.onboarding.voting == false)
-          game.onboardMessage = "Vote on who gets each individual piece of health-restoring food, and if a blood test is available, vote on who will be tested.";
+          game.onboardMessage = "Voting: RETURN Vote on who gets each individual piece of health-restoring food, and if a blood test is available, vote on who will be tested.";
         //else
         //  game.onboardMessage = "";
 

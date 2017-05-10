@@ -9,6 +9,23 @@ html, body {
     text-shadow: 0 0 0.5em #2963ca;
     background-color: #0c1036;
 }
+p{
+  margin: 20px;
+  padding: 5px;
+  font-size: 24pt;
+  width: 60%;
+  margin: auto;
+  display: block;
+}
+a:visited{
+  color: white;
+}
+img{
+  mix-blend-mode: screen;
+  display: block;
+  margin: auto;
+  width: 60%;
+}
 #roomName input{
     position: absolute;
     left: 40%;
