@@ -191,7 +191,7 @@ const initSockets = () => {
           socket.emit("startGame");
         }
         c.appendChild(b);
-        document.body.appendChild(c);
+        q(".controller").appendChild(c);
       }
       hideLogin();
       messageEl.innerHTML = "WAITING FOR PLAYERS"

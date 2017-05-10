@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=VT323');
 
 html, body {
-    width:  100%;
-    height: 100%;
     margin: 0px;
     font-family: 'VT323', monospace;
     color: #5687de;
@@ -131,8 +129,8 @@ button:hover {
   margin: 0px;
 }
 .crtEffect {
-  width: 100%;
-  height: 100%;
+  width: 100vh;
+  height: 100vh;
   position: fixed;
   pointer-events: none;
   top: 0;
