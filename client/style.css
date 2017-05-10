@@ -14,6 +14,9 @@ p{
   margin: auto;
   display: block;
 }
+.introText{
+  width: 60%;
+}
 a:visited{
   color: white;
 }
