@@ -13,7 +13,6 @@ p{
   margin: 20px;
   padding: 5px;
   font-size: 24pt;
-  width: 60%;
   margin: auto;
   display: block;
 }
@@ -51,7 +50,6 @@ input {
 }
 .container {
   border: none;
-  max-width: 75vh;
 }
 .container > button {
   width: 90%;
@@ -63,8 +61,6 @@ input {
 .container > input {
   border: none;
   display: inline;
-  width: calc(90% - 5em);
-  height: 1em;
   font-size: 2em;
   font-family: 'VT323', monospace;
   border-bottom: 0.1em solid #5687de;
@@ -125,7 +121,10 @@ button:hover {
 }
 
 .controller {
-  margin: 2em;
+  margin: 5vw;
+  width: 50vh;
+  height: 90vh;
+  font-size: 3vh;
 }
 .controller p {
   font-size: 2em;
