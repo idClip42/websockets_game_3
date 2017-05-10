@@ -46,6 +46,8 @@ input {
   color: inherit;
   text-shadow: 0 0 0.5em #2963ca;
   background-color: rgba(0,0,0,0);
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
 }
 .container {
   border: none;
@@ -88,6 +90,8 @@ button {
   background-color: #5687de;
   color: #0c1036;
   box-shadow: 0 0 0.5em #2963ca; 
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
 }
 
 button:hover {
