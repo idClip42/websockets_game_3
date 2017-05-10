@@ -181,13 +181,16 @@ const initSockets = () => {
       
       // first player gets start button
       if (data === "first") {
+        const c = document.createElement("div");
+        c.setAttribute("class","container");
         const b = document.createElement("button");
         b.setAttribute("class", "startGame");
         b.innerHTML = "ALL PLAYERS READY"
         b.onclick = () => {
           socket.emit("startGame");
         }
-        document.body.appendChild(b);
+        c.appendChild(b);
+        document.body.appendChild(c);
       }
       hideLogin();
       messageEl.innerHTML = "WAITING FOR PLAYERS"

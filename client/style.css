@@ -66,6 +66,19 @@ input {
   box-shadow: none; 
 }
 
+button {
+  border: none;
+  background-color: #5687de;
+  color: #0c1036;
+  box-shadow: 0 0 0.5em #2963ca; 
+}
+
+button:hover {
+  background-color: #0c1036;
+  color: #5687de;
+  box-shadow: none; 
+}
+
 .health {
   padding: 1%;
 }
@@ -76,13 +89,16 @@ input {
   text-align: center;
   font-size: 2em;
 }
+.health > div::after {
+  content: "□"; !important
+}
 .startGame {
   width: 10vh;
   height: 5vh;
 }
 .full::after {
   /* override empty image */
-  content: "<3"; !important
+  content: "■"; !important
 }
 .HUD {
 }
