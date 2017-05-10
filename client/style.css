@@ -107,16 +107,15 @@ button:hover {
   text-align: center;
   font-size: 2em;
 }
-.health > div::after {
-  content: "□"; !important
-}
-.startGame {
-  width: 10vh;
-  height: 5vh;
-}
-.full::after {
+.health > div.full::after {
   /* override empty image */
   content: "■"; !important
+}
+.health > div::after {
+  content: "□";
+}
+.container > button.startGame {
+  font-size: 1.5em;
 }
 .HUD {
 }
