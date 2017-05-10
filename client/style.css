@@ -20,7 +20,7 @@ p{
 a:visited{
   color: white;
 }
-img{
+#logo{
   mix-blend-mode: screen;
   display: block;
   margin: auto;
