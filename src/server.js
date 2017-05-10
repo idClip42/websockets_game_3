@@ -371,6 +371,8 @@ io.sockets.on('connection', (socket) => {
     }
   });
 
+
+
   socket.on('startGame', () => {
     // This should probably be called by a player
     // Perhaps the first player to join, like in Jackbox games?
@@ -402,6 +404,11 @@ io.sockets.on('connection', (socket) => {
     emitUpdate(socket.gameRoom);  // socket.room may not be valid
     // For the same reasons as above, this is probably not needed
   });
+
+  // Players restart game
+  socket.on('restart', (data) => {
+    resetGame();
+  })
 
   socket.on('disconnect', () => {
 
@@ -511,13 +518,13 @@ const checkGameOver = (g) => {
   } 
   if (healthy.length <= 0) {
     game.message = "GAME OVER: The Thing won";
-    game.onboardMessage = "";
+    game.onboardMessage = "The world is doomed.";
     game.state = GAMESTATE.END;
     emitUpdate(game.room);
   }
   if (thing.length <= 0) {
     game.message = "GAME OVER: The Humans won";
-    game.onboardMessage = "";
+    game.onboardMessage = "The world is saved!";
     game.state = GAMESTATE.END;
     emitUpdate(game.room);
   }
