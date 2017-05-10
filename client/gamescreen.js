@@ -371,7 +371,7 @@ const drawStats = () => {
     ctx.textBaseline="middle"; 
     ctx.font = "24px " + VALS.FONT;
 
-    const x = 0.6 * canvas.width;
+    const x = 0.65 * canvas.width;
     const y = 0.7 * canvas.height;
     const height = 50;
     const length = 100;
@@ -413,8 +413,8 @@ const drawMessage = () => {
 const drawOnboardingMessage = () => {
     const msg = game.onboardMessage;
     const charsPerLine = 30;
-    const x = 0.7 * canvas.width;
-    const y = 0.4 * canvas.height;
+    const x = 0.65 * canvas.width;
+    const y = 0.25 * canvas.height;
     const height = 28;
 
     setGlow();
