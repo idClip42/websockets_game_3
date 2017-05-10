@@ -103,6 +103,7 @@ const GAMESTATE = Object.freeze({
   GATHERING: 1,
   VOTING: 2,
   INFO: 3,
+  END: 10
 });
 
 // An enumeration for the tasks players select
@@ -474,6 +475,20 @@ const testPlayer = (g, p) => {
 };
 
 
+
+//
+// Resets the game
+// all the game variables
+//
+const resetGame = (game) => {
+  let newGame = GameCreator(game.room);
+  for(let n = 0; n < game.players.length(); n+=1){
+    newGame.players.push(PlayerCreator(game.players[n].name, game.players[n].socketID));
+  }
+};
+
+
+
 //
 // Check for the win conditions
 // All Things are eliminated
@@ -496,12 +511,14 @@ const checkGameOver = (g) => {
   } 
   if (healthy.length <= 0) {
     game.message = "GAME OVER: The Thing won";
-    game.state = GAMESTATE.LOBBY;
+    game.onboardMessage = "";
+    game.state = GAMESTATE.END;
     emitUpdate(game.room);
   }
   if (thing.length <= 0) {
     game.message = "GAME OVER: The Humans won";
-    game.state = GAMESTATE.LOBBY;
+    game.onboardMessage = "";
+    game.state = GAMESTATE.END;
     emitUpdate(game.room);
   }
 }
