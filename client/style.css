@@ -121,7 +121,7 @@ button:hover {
 }
 
 .controller {
-  margin: 5vw;
+  margin: 4vh;
   width: 50vh;
   height: 90vh;
   font-size: 3vh;
@@ -143,4 +143,15 @@ button:hover {
 }
 .inputLabel {
   display: inline;
+}
+.ad {
+  margin-top: 5vw;
+  z-index: 2;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 16vw;
+  background-image: url('fakead.png');
+  background-size: 100%;
 }
