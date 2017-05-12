@@ -125,8 +125,9 @@ const GameCreator = (room) => {
   game.room = room;                   // Name of the room this game is in
   game.state = GAMESTATE.LOBBY;       // The current state of the game
   game.food = 0;                      // How much food has been collected
-  game.chems = 0;                     // How many chems have been collected
-  game.generator = GAME.MAX_POWER;    // How much power the generator has
+  game.chems = 0;                     // How many chems have been  collected
+  // How much power the generator has
+  game.generator = 1 + Math.floor(Math.random() * GAME.MAX_POWER);
   game.message = '';                  // Message shown on the main game screen
                                       // Gives info about events and actions
   game.GAMESTATE = GAMESTATE;         // A copy of the enumerations for gamestate
