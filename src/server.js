@@ -25,7 +25,7 @@ const app = express();
 app.use(express.static('client'));
 const http = require('http').Server(app);
 const socketio = require('socket.io');
-const url = require('url');
+// const url = require('url');
 const path = require('path');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
@@ -103,7 +103,7 @@ const GAMESTATE = Object.freeze({
   GATHERING: 1,
   VOTING: 2,
   INFO: 3,
-  END: 4
+  END: 4,
 });
 
 // An enumeration for the tasks players select
@@ -134,13 +134,13 @@ const GameCreator = (room) => {
 
   game.connections = 0;               // How many clients have connected to the game
 
-  //game.onboarding = {                 // Which game states have been explained to the player
+  // game.onboarding = {                 // Which game states have been explained to the player
   //  lobby: false,
   //  gathering: false,
   //  voting: false,
   //  powerOut: false
-  //};
-  game.onboardMessage = "";           // The message with tutorial info
+  // };
+  game.onboardMessage = '';           // The message with tutorial info
 
   return Object.seal(game);
 };
@@ -150,21 +150,29 @@ const GameCreator = (room) => {
 const PlayerCreator = (name, id) => {
   const player = {};
 
-  player.name = name;                                             // The player's name
-  player.health = Math.round(2 + Math.random() * (GAME.MAX_HEALTH - 2));    // How much health they have (initialized randomly)
-  player.task = TASKS.NOTHING;                                    // The player's selected task for the Gathering game state
-  player.thing = false;                                           // Whether this player is The Thing
-  player.socketID = id;                                           // The player client's socket id
-  player.disabled = false;                                        // Whether the player has disconnected (used to allow reconnect
-                                                                  // and prevent waiting for input from the disabled player)
-  player.dead = false;                                            // Whether the player is dead (after being discovered as The Thing)
-  player.vote = -1;                                               // An int signifiying what the player has voted for (corresponds to player index)
+  // The player's name
+  player.name = name;
+  // How much health they have (initialized randomly)
+  player.health = Math.round(2 + (Math.random() * (GAME.MAX_HEALTH - 2)));
+  // The player's selected task for the Gathering game state
+  player.task = TASKS.NOTHING;
+  // Whether this player is The Thing
+  player.thing = false;
+  // The player client's socket id
+  player.socketID = id;
+  // Whether the player has disconnected (used to allow reconnect and
+  // prevent waiting for input from the disabled player)
+  player.disabled = false;
+  // Whether the player is dead (after being discovered as The Thing)
+  player.dead = false;
+  // An int signifiying what the player has voted for (corresponds to player index)
+  player.vote = -1;
 
   return Object.seal(player);
 };
 
 
-//const frameTime = 1000 / 60;          // The "framerate" - updates 60 times a second
+// const frameTime = 1000 / 60;          // The "framerate" - updates 60 times a second
 const frameTime = 500;          // The "framerate" - twice per second
 
 /*
@@ -195,7 +203,7 @@ const frameTime = 500;          // The "framerate" - twice per second
 // search an array for an object with a given property == a value
 const elemWithProperty = (arrayOfObjects, propertyName, match) => {
   // loop
-  for (let i = 0; i < arrayOfObjects.length; i++) {
+  for (let i = 0; i < arrayOfObjects.length; i += 1) {
     // match found
     if (match === arrayOfObjects[i][propertyName]) {
       return arrayOfObjects[i];
@@ -210,6 +218,33 @@ const elemWithProperty = (arrayOfObjects, propertyName, match) => {
 const emitUpdate = (room) => {
   const obj = roomGames[room];
   io.to(room).emit('update', obj);    // Unsure if this is correct
+};
+
+
+//
+// Resets the game
+// all the game variables
+//
+const resetGame = (game) => {
+  const newGame = GameCreator(game.room);
+  for (let n = 0; n < game.players.length; n += 1) {
+    newGame.players.push(PlayerCreator(game.players[n].name, game.players[n].socketID));
+    newGame.players[n].thing = false;
+  }
+
+  // Tag, you're it! Select one player to be the thing
+  newGame.players[Math.floor(game.players.length * Math.random())].thing = true;
+
+  newGame.state = GAMESTATE.GATHERING;
+  console.log(`game state = ${newGame.state}`);
+
+  console.log('game started');
+  io.to(newGame.room).emit('start succeeded');
+
+  emitUpdate(newGame.room);  // socket.room may not be valid
+
+  // replace reference to old room
+  roomGames[game.room] = newGame;
 };
 
 
@@ -241,17 +276,7 @@ io.sockets.on('connection', (socket) => {
 
   let isMain = false;
   let thisPlayerIndex = -1;
-  let thisRoom = undefined;
-
-  socket.on('update', (data) => {
-    // Update individual values in the Game object here
-    // (data should probably hold the player object only,
-    //  since that's the only thing the player will be updating)
-
-    emitUpdate(socket.gameRoom);  // socket.room may not be valid
-    // This line is not needed if an update is sent out every frame in game loop
-    // Can probably be deleted
-  });
+  let thisRoom;
 
   socket.on('joinGame', (data) => {
     // data here should hold a room property and a player name property
@@ -267,15 +292,15 @@ io.sockets.on('connection', (socket) => {
       return;
     }
 
-    let sameName = elemWithProperty(game.players,"name",data.name);
+    const sameName = elemWithProperty(game.players, 'name', data.name);
 
-    if(sameName && sameName.disabled == false){
+    if (sameName && sameName.disabled === false) {
       socket.emit('join failed', 'player name already in use');
       return;
     }
 
     // If the game is not in the Lobby (and player is not rejoining), cannot add a player
-    if (game.state !== GAMESTATE.LOBBY && (!sameName || sameName.disabled == false)) {
+    if (game.state !== GAMESTATE.LOBBY && (!sameName || sameName.disabled === false)) {
       socket.emit('join failed', 'game already started');
       return;
     }
@@ -292,7 +317,8 @@ io.sockets.on('connection', (socket) => {
     // Let them back in and set their player.disabled property to false
 
     socket.join(data.room);
-    socket.gameRoom = data.room;
+    const sock = socket; // get around weird eslint requirements
+    sock.gameRoom = data.room;
     thisRoom = data.room;
 
     // only add player to player list if this is the first time s/he joined.
@@ -301,14 +327,14 @@ io.sockets.on('connection', (socket) => {
       game.players.push(player);
       thisPlayerIndex = game.players.length - 1;
     } else {
-      //Find player
-      //for(let n = 0; n < players.length; ++n){
+      // Find player
+      // for(let n = 0; n < players.length; ++n){
       //  if(players[n].name = data.name &&
       //    players[n].disabled == true)
       //    players[n].disabled = false;
-      //}
-      let p = elemWithProperty(game.players,"name",data.name);
-      if(p && p.disabled === true) p.disabled = false;
+      // }
+      const p = elemWithProperty(game.players, 'name', data.name);
+      if (p && p.disabled === true) p.disabled = false;
       thisPlayerIndex = game.players.indexOf(p);
     }
 
@@ -326,12 +352,12 @@ io.sockets.on('connection', (socket) => {
     // The main screen will call this to make a new game
 
     // If there are no rooms with this name, makes one
-    if (!roomGames[name]) { 
-      roomGames[name] = GameCreator(name); 
+    if (!roomGames[name]) {
+      roomGames[name] = GameCreator(name);
     }
     socket.join(name);
 
-    roomGames[name].connections += 1
+    roomGames[name].connections += 1;
 
     console.log(`Room ${name} created`);
 
@@ -341,18 +367,18 @@ io.sockets.on('connection', (socket) => {
     emitUpdate(name);
     // For the same reasons as above, this is probably not needed
   });
-  
+
   // player casts a vote
   socket.on('vote', (data) => {
     const game = roomGames[socket.gameRoom];
-    const player = elemWithProperty(game.players,"name",data.name);
+    const player = elemWithProperty(game.players, 'name', data.name);
     player.vote = data.choice;
   });
 
   // player decides on an action
   socket.on('action', (data) => {
     const game = roomGames[socket.gameRoom];
-    const player = elemWithProperty(game.players,"name",data.name);
+    const player = elemWithProperty(game.players, 'name', data.name);
     switch (data.choice) {
       case 'food':
         player.task = TASKS.FOOD;
@@ -364,13 +390,14 @@ io.sockets.on('connection', (socket) => {
         break;
       case 'generator':
         player.task = TASKS.POWER;
-        if(game.generator <= 0) game.onboarding.powerOut = true;
+        if (game.generator <= 0) game.onboarding.powerOut = true;
         game.generator += 1;
-        if(game.generator >= GAME.MAX_POWER) game.generator = GAME.MAX_POWER;
+        if (game.generator >= GAME.MAX_POWER) game.generator = GAME.MAX_POWER;
+        break;
+      default:
         break;
     }
   });
-
 
 
   socket.on('startGame', () => {
@@ -383,7 +410,7 @@ io.sockets.on('connection', (socket) => {
 
     // If not in the Lobby, the game has already started
     if (game.state !== GAMESTATE.LOBBY) {
-      console.log("state " + game.state);
+      console.log(`state ${game.state}`);
       if (game.state === GAMESTATE.END) {
         resetGame(game);
       } else {
@@ -393,13 +420,14 @@ io.sockets.on('connection', (socket) => {
     }
     // Game can't start without enough players (REMOVED WHILE DEBUGGING FOR EASE OF TESTING)
     /* if (game.players.length < GAME.MIN_PLAYERS) {
-      socket.emit("start failed", `You need at least ${GAME.MIN_PLAYERS} players in the lobby to start`);
+      socket.emit("start failed",
+        `You need at least ${GAME.MIN_PLAYERS} players in the lobby to start`);
       return;
     }*/
-    
+
     // Tag, you're it! Select one player to be the thing
     game.players[Math.floor(game.players.length * Math.random())].thing = true;
-    
+
     game.state = GAMESTATE.GATHERING;
     console.log(`game state = ${roomGames[socket.gameRoom].state}`);
 
@@ -411,21 +439,17 @@ io.sockets.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-
-    //if(isMain == true){
+    // if(isMain == true){
       // DELETE THE GAME
-      //delete roomGames[thisRoom];
-    //} else {
-    if(!roomGames[thisRoom])
-      return;
+      // delete roomGames[thisRoom];
+    // } else {
+    if (!roomGames[thisRoom]) { return; }
 
-    if(isMain == false)
-      roomGames[thisRoom].players[thisPlayerIndex].disabled = true;
+    if (isMain === false) { roomGames[thisRoom].players[thisPlayerIndex].disabled = true; }
 
     roomGames[thisRoom].connections -= 1;
-    if(roomGames[thisRoom].connections <= 0)
-      delete roomGames[thisRoom];
-    //}
+    if (roomGames[thisRoom].connections <= 0) { delete roomGames[thisRoom]; }
+    // }
 
     // set player.disabled value to true
     // This tells us a player has disconnected
@@ -461,6 +485,41 @@ console.log('Websocket server started');
 
 
 //
+// Check for the win conditions
+// All Things are eliminated
+//
+const checkGameOver = (g) => {
+  const game = g;
+  const players = game.players;
+
+  const thing = [];
+  const healthy = [];
+
+  for (let p = 0; p < players.length; p += 1) {
+    if (!players[p].dead) {
+      if (players[p].thing) {
+        thing.push(p);
+      } else {
+        healthy.push(p);
+      }
+    }
+  }
+  if (healthy.length <= 0) {
+    game.message = 'GAME OVER: The Thing won';
+    game.onboardMessage = 'The world is doomed.';
+    game.state = GAMESTATE.END;
+    emitUpdate(game.room);
+  }
+  if (thing.length <= 0) {
+    game.message = 'GAME OVER: The Humans won';
+    game.onboardMessage = 'The world is saved!';
+    game.state = GAMESTATE.END;
+    emitUpdate(game.room);
+  }
+};
+
+
+//
 // The given player is tested to see if they are The Thing
 // If they are not, it is announced
 // If they are, it is announced and they are killed
@@ -470,80 +529,16 @@ const testPlayer = (g, p) => {
   const game = g;
   const player = p;
 
-  if (player.thing === false) { 
-    game.message = `${player.name} is tested and found to be human.`; 
-  } 
-  else {
-    game.message = `${player.name} is tested and is revealed to be The Thing! They are quickly killed`;
-    player.health = 0; 
+  if (player.thing === false) {
+    game.message = `${player.name} is tested and found to be human.`;
+  } else {
+    game.message =
+      `${player.name} is tested and is revealed to be The Thing! They are quickly killed`;
+    player.health = 0;
     player.dead = true;
     checkGameOver(g);
   }
 };
-
-
-
-//
-// Resets the game
-// all the game variables
-//
-const resetGame = (game) => {
-  let newGame = GameCreator(game.room);
-  for(let n = 0; n < game.players.length; n+=1){
-    game.players[n].thing = false;
-    newGame.players.push(PlayerCreator(game.players[n].name, game.players[n].socketID));
-  }
-  
-  // Tag, you're it! Select one player to be the thing
-  newGame.players[Math.floor(game.players.length * Math.random())].thing = true;
-  
-  newGame.state = GAMESTATE.GATHERING;
-  console.log(`game state = ${newGame.state}`);
-
-  console.log('game started');
-  io.to(newGame.room).emit('start succeeded');
-
-  emitUpdate(newGame.room);  // socket.room may not be valid
-  
-  // replace reference to old room
-  roomGames[game.room] = newGame;
-};
-
-
-
-//
-// Check for the win conditions
-// All Things are eliminated
-// 
-const checkGameOver = (g) => {
-  const game = g;
-  const players = game.players;
-  
-  const thing = [];
-  const healthy = [];
-  
-  for (let p = 0; p < players.length; p += 1) {
-    if (!players[p].dead) {
-      if (players[p].thing) {
-        thing.push(p);
-      } else {
-        healthy.push(p);
-      }
-    }
-  } 
-  if (healthy.length <= 0) {
-    game.message = "GAME OVER: The Thing won";
-    game.onboardMessage = "The world is doomed.";
-    game.state = GAMESTATE.END;
-    emitUpdate(game.room);
-  }
-  if (thing.length <= 0) {
-    game.message = "GAME OVER: The Humans won";
-    game.onboardMessage = "The world is saved!";
-    game.state = GAMESTATE.END;
-    emitUpdate(game.room);
-  }
-}
 
 //
 // At the end of the voting round,
@@ -563,7 +558,7 @@ const endVotingRound = (g, p) => {
   for (let n = 0; n < players.length; n += 1) {
     if (players[n].thing === false && players[n].health > 0) { players[n].health -= 1; }
   }
-  
+
   // check if the Thing or Players won yet
   checkGameOver(g);
 };
@@ -577,7 +572,9 @@ const doneVoting = (pl, property) => {
   const players = pl;
   let allVoted = true;
   for (let p = 0; p < players.length; p += 1) {
-    if (players[p][property] === -1 && players[p].disabled === false && players[p].dead === false) { allVoted = false; }
+    if (players[p][property] === -1 &&
+      players[p].disabled === false &&
+      players[p].dead === false) { allVoted = false; }
   }
   return allVoted;
 };
@@ -607,13 +604,13 @@ const voteCounting = (p) => {
   const players = p;
 
   const voteArray = [];     // Creates array of votes
-  for (let n = 0; n < players.length; n += 1) { 
-    voteArray[n] = 0; 
+  for (let n = 0; n < players.length; n += 1) {
+    voteArray[n] = 0;
   }
 
   for (let n = 0; n < players.length; n += 1) {
     // get character index
-    const v = players.indexOf(elemWithProperty(players,"name",players[n].vote));
+    const v = players.indexOf(elemWithProperty(players, 'name', players[n].vote));
     if (v !== -1) {  // Ignores non-voters
       voteArray[v] += 1;  // Adds a vote to the given player
     }
@@ -660,7 +657,6 @@ const votingRound = (g, p) => {
 
     // IF PLAYERS ARE DONE VOTING
     if (doneVoting(players, 'vote') === true) {
-
       // GETS THE CHOSEN PLAYER
       const choice = voteCounting(players);
 
@@ -683,14 +679,13 @@ const votingRound = (g, p) => {
 
       // RESETS THE VOTES AFTER A VOTE HAS BEEN HAD
       resetVotes(players, 'vote');
-    } 
+    }
   // CHEM PHASE
   // IF THERE ARE ENOUGH CHEMS TO TEST SOMEONE
   } else if (game.chems >= GAME.CHEMS_TO_TEST) {
-
     game.message = `Vote for who gets tested. There are enough chems for ${Math.floor(game.chems / GAME.CHEMS_TO_TEST)} tests.`;
 
-    //IF PLAYERS ARE DONE VOTING
+    // IF PLAYERS ARE DONE VOTING
     if (doneVoting(players, 'vote') === true) {
       const choice = voteCounting(players);
 
@@ -714,9 +709,8 @@ const votingRound = (g, p) => {
       // RESETS THE VOTES AFTER A VOTE HAS BEEN COMPLETED
       resetVotes(players, 'vote');
     }
-  }
   // IF THERE IS NO MORE FOOD OR CHEMS TO VOTE ON, STATE MOVES ON
-  else return true;
+  } else { return true; }
   // OTHERWISE, WE STAY IN THE VOTING STATE
   return false;
 };
@@ -757,27 +751,25 @@ const playersInAreas = (g, pl) => {
 
   // Goes through each of the tasks/rooms
   for (let t = 0; t < 3; t += 1) {
-
-    console.log("Checking players in Task: " + t);
+    console.log(`Checking players in Task: ${t}`);
 
     const healthy = [];
     const starved = [];
     const thing = [];
 
     for (let p = 0; p < players.length; p += 1) {
-
-      console.log("\tPlayer " + p + " has task: " + players[p].task);
+      console.log(`\tPlayer ${p} has task: ${players[p].task}`);
 
       if (players[p].task === t) {
-        console.log("\t\tTask matches");
+        console.log('\t\tTask matches');
         if (players[p].thing === true) {
-          console.log("\t\tAdding player " + p + " to thing list");
+          console.log(`\t\tAdding player ${p} to thing list`);
           thing.push(p);
         } else if (p.health <= 0) {
-          console.log("\t\tAdding player " + p + " to starved list");
+          console.log(`\t\tAdding player ${p} to starved list`);
           starved.push(p);
         } else {
-          console.log("\t\tAdding player " + p + " to healthy list");
+          console.log(`\t\tAdding player ${p} to healthy list`);
           healthy.push(p);
         }
       }
@@ -788,23 +780,23 @@ const playersInAreas = (g, pl) => {
       console.log("\tThere's a thing in the room");
       // If the powers out, everyone with the Thing is converted
       if (game.generator <= 0) {
-        console.log("\tThe generator is out");
-        for (let h = 0; h < healthy.length; h += 1) { 
-          console.log("\t\tHealthy player " + healthy[h] + " is now the Thing");
-          players[healthy[h]].thing = true; 
+        console.log('\tThe generator is out');
+        for (let h = 0; h < healthy.length; h += 1) {
+          console.log(`\t\tHealthy player ${healthy[h]} is now the Thing`);
+          players[healthy[h]].thing = true;
           checkGameOver(game);
         }
       }
       // Any starved people with the Thing are converted
-      for (let s = 0; s < starved.length; s += 1) { 
-        console.log("\t\tStarved player " + starved[s] + " is now the Thing");
-        players[starved[s]].thing = true; 
+      for (let s = 0; s < starved.length; s += 1) {
+        console.log(`\t\tStarved player ${starved[s]} is now the Thing`);
+        players[starved[s]].thing = true;
         checkGameOver(game);
       }
       // If there is only one healthy person with the Thing, they are converted
-      if (healthy.length === 1) { 
-        console.log("\t\tHealthy player " + healthy[0] + " is now the Thing");
-        players[healthy[0]].thing = true; 
+      if (healthy.length === 1) {
+        console.log(`\t\tHealthy player ${healthy[0]} is now the Thing`);
+        players[healthy[0]].thing = true;
         checkGameOver(game);
       }
     }
@@ -825,46 +817,44 @@ const gameLoop = () => {
 
     // cheap check for object property that is not a room
     // (Object.hasOwnProperty is not allowed in Airbnb)
-    //if (!game.state) continue;
+    // if (!game.state) continue;
 
     const players = game.players;
 
     if (game.state === GAMESTATE.LOBBY) {
         // Probably do nothing here
-        game.onboardMessage = "One among you is not human. RETURN RETURN Welcome to The Thing: PARTY RETURN Most of you will play as humans, trying to survive. RETURN One of you is THE THING. Your goal is to infect all the other humans and make them THE THING.";
+      game.onboardMessage = 'One among you is not human. RETURN RETURN Welcome to The Thing: PARTY RETURN Most of you will play as humans, trying to survive. RETURN One of you is THE THING. Your goal is to infect all the other humans and make them THE THING.';
     } else if (game.state === GAMESTATE.GATHERING) {
-
-        //if(game.onboarding.gathering == false)
-          game.onboardMessage = "Gathering: RETURN - Get food for health RETURN - Get " + GAME.CHEMS_TO_TEST + " chems to prepare a blood test RETURN - Add fuel to the generator RETURN - Beware of being alone in a room with someone who is The Thing - they will infect you.";
-        //else if(game.onboarding.powerOut == false && game.generator <= 0)
-        if(game.generator <= 0)
-          game.onboardMessage = "The power is out, and anyone who is The Thing can infect anyone in a room with them under the cover of darkness.";
-        //else
+        // if(game.onboarding.gathering == false)
+      game.onboardMessage = `Gathering: RETURN - Get food for health RETURN - Get ${GAME.CHEMS_TO_TEST} chems to prepare a blood test RETURN - Add fuel to the generator RETURN - Beware of being alone in a room with someone who is The Thing - they will infect you.`;
+        // else if(game.onboarding.powerOut == false && game.generator <= 0)
+      if (game.generator <= 0) { game.onboardMessage = 'The power is out, and anyone who is The Thing can infect anyone in a room with them under the cover of darkness.'; }
+        // else
         //  game.onboardMessage = "";
 
-        for(let p = 0; p < game.players.length; p+=1){
-          if(game.players[p].health <= 0)
-            game.onboardMessage = "One of you is out of health - you are now extremely vulnerable to The Thing, no matter who else is around.";
-        }
-        
+      for (let p = 0; p < game.players.length; p += 1) {
+        if (game.players[p].health <= 0) { game.onboardMessage = 'One of you is out of health - you are now extremely vulnerable to The Thing, no matter who else is around.'; }
+      }
+
 
       if (doneVoting(players, 'task') === true) {
         game.state = GAMESTATE.VOTING;
         playersInAreas(game, players);
-        //game.onboarding.gathering = true;
+        // game.onboarding.gathering = true;
       }
     } else if (game.state === GAMESTATE.VOTING) {
-
-        //if(game.onboarding.voting == false)
-          game.onboardMessage = "Voting: RETURN Vote on who gets each individual piece of health-restoring food, and if a blood test is available, vote on who will be tested.";
-        //else
+        // if(game.onboarding.voting == false)
+      game.onboardMessage = 'Voting: RETURN Vote on who gets each individual piece of health-restoring food, and if a blood test is available, vote on who will be tested.';
+        // else
         //  game.onboardMessage = "";
 
       if (votingRound(game, players) === true) {
-        console.log("Done voting.");
-        game.food *= (game.food < 0) ? -1 : 1;    // If we didn't use the remaining supplies,
-        game.chems *= (game.chems < 0) ? -1 : 1;  // their counts were made negative to work with the loops
-        //game.onboarding.voting = true;
+        console.log('Done voting.');
+        // If we didn't use the remaining supplies,
+        game.food *= (game.food < 0) ? -1 : 1;
+        // their counts were made negative to work with the loops
+        game.chems *= (game.chems < 0) ? -1 : 1;
+        // game.onboarding.voting = true;
 
         game.state = GAMESTATE.GATHERING;
 
