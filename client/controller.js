@@ -21,6 +21,15 @@ let self; // self reference refreshed every update;
 
 let hearts;
 
+// An enumeration for the Gamestate
+const GAMESTATE = Object.freeze({
+  LOBBY: 0,
+  GATHERING: 1,
+  VOTING: 2,
+  INFO: 3,
+  END: 4
+});
+
 // shorthand for print
 const log = (output) => {
   console.log(output);
@@ -129,7 +138,7 @@ const updateGame = (data) => {
     messageEl.innerHTML = game.message;
     prevMsg = game.message;
     // if there is a new vote, display the new vote
-    if (game.state === 2) {
+    if (game.state === GAMESTATE.VOTING) {
       removeChoices();
       displayVoteChoices();
     }
@@ -139,24 +148,30 @@ const updateGame = (data) => {
     // Should this be self.thing === true?
     // It seems fine now, but maybe if it isn't fine later this is why
     q(".healthLabel").innerHTML = "You are the thing"; 
+  } else {
+    q(".healthLabel").innerHTML = "Eat to restore health"; 
   }
   prevPhase = game.state;
   showHealth();
   switch (game.state) {
     // lobby
-    case 0:
+    case GAMESTATE.LOBBY:
       // welcome to the arctic research facility
       break;
     // gather
-    case 1:
+    case GAMESTATE.GATHERING:
       removeChoices();
       displayPlayerChoices();
       break;
     // vote
-    case 2:
+    case GAMESTATE.VOTING:
       removeChoices();
       displayVoteChoices();
       break;
+    case GAMESTATE.END  :
+      GameOverPhase();
+      break;
+      
   }
   if (self.dead) {
     q(".healthLabel").innerHTML = "You have died"; 
@@ -212,6 +227,24 @@ const GatheringPhase = () => {
   // temporary
   messageEl.innerHTML = "GATHERING PHASE"
   //displayPlayerChoices(); now handled by update
+}
+
+const ShowRestartButton = () => {
+  const c = document.createElement("div");
+  c.setAttribute("class","container");
+  const b = document.createElement("button");
+  b.setAttribute("class", "startGame");
+  b.innerHTML = "START NEW GAME"
+  b.onclick = () => {
+    socket.emit("startGame");
+  }
+  c.appendChild(b);
+  q(".controller").appendChild(c);
+}
+
+const GameOverPhase = () => {
+  removeChoices();
+  ShowRestartButton();
 }
 
 const initPage = () => {

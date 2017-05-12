@@ -103,7 +103,7 @@ const GAMESTATE = Object.freeze({
   GATHERING: 1,
   VOTING: 2,
   INFO: 3,
-  END: 10
+  END: 4
 });
 
 // An enumeration for the tasks players select
@@ -383,8 +383,13 @@ io.sockets.on('connection', (socket) => {
 
     // If not in the Lobby, the game has already started
     if (game.state !== GAMESTATE.LOBBY) {
-      socket.emit('start failed', 'game is already started');
-      return;
+      console.log("state " + game.state);
+      if (game.state === GAMESTATE.END) {
+        resetGame(game);
+      } else {
+        socket.emit('start failed', 'game is already started');
+        return;
+      }
     }
     // Game can't start without enough players (REMOVED WHILE DEBUGGING FOR EASE OF TESTING)
     /* if (game.players.length < GAME.MIN_PLAYERS) {
@@ -404,11 +409,6 @@ io.sockets.on('connection', (socket) => {
     emitUpdate(socket.gameRoom);  // socket.room may not be valid
     // For the same reasons as above, this is probably not needed
   });
-
-  // Players restart game
-  socket.on('restart', (data) => {
-    resetGame();
-  })
 
   socket.on('disconnect', () => {
 
@@ -489,9 +489,23 @@ const testPlayer = (g, p) => {
 //
 const resetGame = (game) => {
   let newGame = GameCreator(game.room);
-  for(let n = 0; n < game.players.length(); n+=1){
+  for(let n = 0; n < game.players.length; n+=1){
     newGame.players.push(PlayerCreator(game.players[n].name, game.players[n].socketID));
   }
+  
+  // Tag, you're it! Select one player to be the thing
+  newGame.players[Math.floor(game.players.length * Math.random())].thing = true;
+  
+  newGame.state = GAMESTATE.GATHERING;
+  console.log(`game state = ${newGame.state}`);
+
+  console.log('game started');
+  io.to(newGame.room).emit('start succeeded');
+
+  emitUpdate(newGame.room);  // socket.room may not be valid
+  
+  // replace reference to old room
+  roomGames[game.room] = newGame;
 };
 
 
@@ -851,9 +865,9 @@ const gameLoop = () => {
         game.chems *= (game.chems < 0) ? -1 : 1;  // their counts were made negative to work with the loops
         //game.onboarding.voting = true;
 
-        endVotingRound(game, players);
-
         game.state = GAMESTATE.GATHERING;
+
+        endVotingRound(game, players);
 
         resetVotes(players, 'task');
       }
