@@ -490,6 +490,7 @@ const testPlayer = (g, p) => {
 const resetGame = (game) => {
   let newGame = GameCreator(game.room);
   for(let n = 0; n < game.players.length; n+=1){
+    game.players[n].thing = false;
     newGame.players.push(PlayerCreator(game.players[n].name, game.players[n].socketID));
   }
   
