@@ -262,12 +262,15 @@ const initPage = () => {
     voteContainer = q(".vote");
     submitBtn = q(".submit");
     hearts = document.querySelectorAll(".health > div");
+    q('.closeAd').onclick = () => { 
+      q('.ad').parentNode.removeChild(q('.ad')); 
+    };
     
     healthContainer.style.display = "none";
     
     // events
     //submitBtn.onclick = (e) => { 
-    document.querySelector("#loginContainer").onsubmit = (e) => {
+    q("#loginContainer").onsubmit = (e) => {
       e.preventDefault();
       joinGame(); 
       return false;

@@ -155,3 +155,12 @@ button:hover {
   background-image: url('fakead.png');
   background-size: 100%;
 }
+.closeAd {
+  position: fixed;
+  width: 16vw;
+  height: 16vw;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  cursor: pointer;
+}
