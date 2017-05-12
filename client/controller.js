@@ -32,7 +32,7 @@ const GAMESTATE = Object.freeze({
 
 // shorthand for print
 const log = (output) => {
-  console.log(output);
+  //console.log(output);
 }
 
 // shorthand for query selector
@@ -108,7 +108,13 @@ const createNoneVote = () => {
 
 const displayVoteChoices = () => {
   for (let i=0; i<game.players.length; i++) {
-    createVote(game.players[i].name);
+
+    let name = game.players[i].name;
+    if(self.thing == true &&
+      game.players[i].thing == true)
+      name += "*";
+
+    createVote(name);
   }
   createNoneVote();
 }
@@ -145,8 +151,6 @@ const updateGame = (data) => {
   }
   if (prevPhase === game.state) return;
   if (self.thing) { 
-    // Should this be self.thing === true?
-    // It seems fine now, but maybe if it isn't fine later this is why
     q(".healthLabel").innerHTML = "You are the thing"; 
   } else {
     q(".healthLabel").innerHTML = "Eat to restore health"; 

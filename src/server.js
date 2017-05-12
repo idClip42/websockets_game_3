@@ -32,8 +32,8 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 // start server listen to all IPs on port
 http.listen(port, '0.0.0.0', 511, () => {
-  console.log(`listening on *: ${port}`);
-  // console.log(`Listening on 127.0.0.1: ${port}`);
+  // console.log(`listening on *: ${port}`);
+  // //console.log(`Listening on 127.0.0.1: ${port}`);
 });
 
 // FILE SERVING HANDLED BY EXPRESS
@@ -41,20 +41,20 @@ http.listen(port, '0.0.0.0', 511, () => {
 // DOESN'T DO ANYTHING
 app.get('/', (req, res) => {
   // does not run, just returns index
-  console.log('root request recieved');
+  // console.log('root request recieved');
   res.sendFile(path.resolve('client/controller.html'));
 });
 
 
 // SEND CONTROLLER
 app.get('/controller', (req, res) => {
-  console.log('request recieved');
+  // console.log('request recieved');
   res.sendFile(path.resolve('client/controller.html'));
 });
 
 // SEND CANVAS GAME
 app.get('/game', (req, res) => {
-  console.log('request recieved');
+  // console.log('request recieved');
   res.sendFile(path.resolve('client/game.html'));
 });
 
@@ -237,9 +237,9 @@ const resetGame = (game) => {
   newGame.players[Math.floor(game.players.length * Math.random())].thing = true;
 
   newGame.state = GAMESTATE.GATHERING;
-  console.log(`game state = ${newGame.state}`);
+  // console.log(`game state = ${newGame.state}`);
 
-  console.log('game started');
+  // console.log('game started');
   io.to(newGame.room).emit('start succeeded');
 
   emitUpdate(newGame.room);  // socket.room may not be valid
@@ -273,7 +273,7 @@ const resetGame = (game) => {
 
 
 io.sockets.on('connection', (socket) => {
-  console.log('connected');
+  // console.log('connected');
 
   let isMain = false;
   let thisPlayerIndex = -1;
@@ -344,7 +344,7 @@ io.sockets.on('connection', (socket) => {
     // send controller join succeeded
     const first = (game.players.length === 1 ? 'first' : undefined);
     socket.emit('join succeeded', first);
-    console.log(`${data.name} joined room ${data.room}`);
+    // console.log(`${data.name} joined room ${data.room}`);
     emitUpdate(data.room);
     // For the same reasons as above, this is probably not needed
   });
@@ -360,7 +360,7 @@ io.sockets.on('connection', (socket) => {
 
     roomGames[name].connections += 1;
 
-    console.log(`Room ${name} created`);
+    // console.log(`Room ${name} created`);
 
     isMain = true;
     thisRoom = name;
@@ -405,13 +405,13 @@ io.sockets.on('connection', (socket) => {
     // This should probably be called by a player
     // Perhaps the first player to join, like in Jackbox games?
     // Or perhaps just any player
-    console.log('game start requested');
+    // console.log('game start requested');
 
     const game = roomGames[socket.gameRoom];  // socket.room may not be valid
 
     // If not in the Lobby, the game has already started
     if (game.state !== GAMESTATE.LOBBY) {
-      console.log(`state ${game.state}`);
+      // console.log(`state ${game.state}`);
       if (game.state === GAMESTATE.END) {
         resetGame(game);
       } else {
@@ -430,9 +430,9 @@ io.sockets.on('connection', (socket) => {
     game.players[Math.floor(game.players.length * Math.random())].thing = true;
 
     game.state = GAMESTATE.GATHERING;
-    console.log(`game state = ${roomGames[socket.gameRoom].state}`);
+    // console.log(`game state = ${roomGames[socket.gameRoom].state}`);
 
-    console.log('game started');
+    // console.log('game started');
     io.to(socket.gameRoom).emit('start succeeded');
 
     emitUpdate(socket.gameRoom);  // socket.room may not be valid
@@ -460,7 +460,7 @@ io.sockets.on('connection', (socket) => {
 });
 
 
-console.log('Websocket server started');
+// console.log('Websocket server started');
 
 
 /*
@@ -752,25 +752,25 @@ const playersInAreas = (g, pl) => {
 
   // Goes through each of the tasks/rooms
   for (let t = 0; t < 3; t += 1) {
-    console.log(`Checking players in Task: ${t}`);
+    // console.log(`Checking players in Task: ${t}`);
 
     const healthy = [];
     const starved = [];
     const thing = [];
 
     for (let p = 0; p < players.length; p += 1) {
-      console.log(`\tPlayer ${p} has task: ${players[p].task}`);
+      // console.log(`\tPlayer ${p} has task: ${players[p].task}`);
 
       if (players[p].task === t) {
-        console.log('\t\tTask matches');
+        // console.log('\t\tTask matches');
         if (players[p].thing === true) {
-          console.log(`\t\tAdding player ${p} to thing list`);
+          // console.log(`\t\tAdding player ${p} to thing list`);
           thing.push(p);
         } else if (p.health <= 0) {
-          console.log(`\t\tAdding player ${p} to starved list`);
+          // console.log(`\t\tAdding player ${p} to starved list`);
           starved.push(p);
         } else {
-          console.log(`\t\tAdding player ${p} to healthy list`);
+          // console.log(`\t\tAdding player ${p} to healthy list`);
           healthy.push(p);
         }
       }
@@ -778,25 +778,25 @@ const playersInAreas = (g, pl) => {
 
     // If theres a Thing in the room
     if (thing.length > 0) {
-      console.log("\tThere's a thing in the room");
+      // console.log("\tThere's a thing in the room");
       // If the powers out, everyone with the Thing is converted
       if (game.generator <= 0) {
-        console.log('\tThe generator is out');
+        // console.log('\tThe generator is out');
         for (let h = 0; h < healthy.length; h += 1) {
-          console.log(`\t\tHealthy player ${healthy[h]} is now the Thing`);
+          // console.log(`\t\tHealthy player ${healthy[h]} is now the Thing`);
           players[healthy[h]].thing = true;
           checkGameOver(game);
         }
       }
       // Any starved people with the Thing are converted
       for (let s = 0; s < starved.length; s += 1) {
-        console.log(`\t\tStarved player ${starved[s]} is now the Thing`);
+        // console.log(`\t\tStarved player ${starved[s]} is now the Thing`);
         players[starved[s]].thing = true;
         checkGameOver(game);
       }
       // If there is only one healthy person with the Thing, they are converted
       if (healthy.length === 1) {
-        console.log(`\t\tHealthy player ${healthy[0]} is now the Thing`);
+        // console.log(`\t\tHealthy player ${healthy[0]} is now the Thing`);
         players[healthy[0]].thing = true;
         checkGameOver(game);
       }
@@ -850,7 +850,7 @@ const gameLoop = () => {
         //  game.onboardMessage = "";
 
       if (votingRound(game, players) === true) {
-        console.log('Done voting.');
+        // console.log('Done voting.');
         // If we didn't use the remaining supplies,
         game.food *= (game.food < 0) ? -1 : 1;
         // their counts were made negative to work with the loops
@@ -865,9 +865,9 @@ const gameLoop = () => {
       }
     } else if (game.state === GAMESTATE.INFO) {
         // This is here in case we need it
-      console.log('How did we get  here?');
+      // console.log('How did we get  here?');
     } else {
-      console.log(`game.state is somehow ${game.state}`);
+      // console.log(`game.state is somehow ${game.state}`);
     }
 
     emitUpdate(game.room);
